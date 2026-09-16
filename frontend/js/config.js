@@ -6,6 +6,10 @@ const CONFIG = {
   // Face API model weights CDN URL
   MODEL_URL: 'https://cdn.jsdelivr.net/npm/@vladmandic/face-api@1.7.12/model',
 
+  // Supabase Cloud Backend Configuration
+  SUPABASE_URL: 'https://pcmzhxaokahnxgjwsobm.supabase.co',
+  SUPABASE_ANON_KEY: 'sb_publishable_0IXWhlg0fV3Lkl_K5kz1zw_RkMDW0jF',
+
   // Auto-detect whether running from backend or file/Live Server
   get API_BASE() {
     if (window.location.protocol.startsWith('http')) {

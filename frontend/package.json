@@ -1,0 +1,27 @@
+{
+  "name": "ai-impression-frontend",
+  "version": "1.0.0",
+  "description": "Frontend client for AI First Impression Analyzer Pro - Vision & Audio Intelligence Studio",
+  "main": "index.html",
+  "scripts": {
+    "start": "serve .",
+    "dev": "serve .",
+    "build": "echo 'Static assets ready for deployment'",
+    "preview": "serve ."
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.49.1"
+  },
+  "devDependencies": {
+    "serve": "^14.2.4"
+  },
+  "keywords": [
+    "ai-impression",
+    "posture-builder",
+    "supabase",
+    "face-biometrics",
+    "frontend"
+  ],
+  "author": "Vision Lab AI",
+  "license": "MIT"
+}
