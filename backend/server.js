@@ -62,7 +62,7 @@ function calculateEuclideanDistance(desc1, desc2) {
   return Math.sqrt(sum);
 }
 
-const MATCH_THRESHOLD = 0.55; // Standard Face-API distance threshold
+const MATCH_THRESHOLD = 0.50; // Strict Face-API distance threshold (One User, One Face)
 
 /* ==========================================================================
    REST API ENDPOINTS
@@ -90,12 +90,20 @@ app.get('/api/users', (req, res) => {
   res.json(sanitized);
 });
 
-// 3. Email + Biometric Face Registration
+// 3. Email + Biometric Face Registration (Strict: One User, One Face)
 app.post('/api/auth/register', (req, res) => {
   const { email, username, name, role, faceDescriptor, avatar } = req.body;
 
   if (!email || !name) {
     return res.status(400).json({ success: false, message: 'Email and Full Name are required.' });
+  }
+
+  const hasValidDescriptor = Array.isArray(faceDescriptor) && faceDescriptor.length === 128;
+  if (!hasValidDescriptor) {
+    return res.status(400).json({ 
+      success: false, 
+      message: '128-D Biometric Face Scan is mandatory. Policy: One User, One Login, One Face.' 
+    });
   }
 
   const cleanEmail = email.trim().toLowerCase();
@@ -104,7 +112,22 @@ app.post('/api/auth/register', (req, res) => {
 
   const existingIdx = users.findIndex(u => (u.email && u.email.toLowerCase() === cleanEmail) || (u.username && u.username.toLowerCase() === cleanUsername));
 
-  const hasValidDescriptor = Array.isArray(faceDescriptor) && faceDescriptor.length === 128;
+  // STRICT BIOMETRIC CHECK: Ensure this face is NOT already registered to another account!
+  const duplicateFaceUser = users.find(u => {
+    if (existingIdx >= 0 && u.id === users[existingIdx].id) return false;
+    if (Array.isArray(u.faceDescriptor) && u.faceDescriptor.length === 128) {
+      const dist = calculateEuclideanDistance(faceDescriptor, u.faceDescriptor);
+      return dist <= MATCH_THRESHOLD;
+    }
+    return false;
+  });
+
+  if (duplicateFaceUser) {
+    return res.status(409).json({
+      success: false,
+      message: `Biometric Conflict: This face is already enrolled to "${duplicateFaceUser.name}" (${duplicateFaceUser.email || duplicateFaceUser.username}). Each face can only belong to ONE user account.`
+    });
+  }
 
   const newUser = {
     id: existingIdx >= 0 ? users[existingIdx].id : `usr_${Date.now()}`,
@@ -114,7 +137,7 @@ app.post('/api/auth/register', (req, res) => {
     role: role || 'Executive Candidate',
     avatar: avatar || `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(cleanUsername)}`,
     registeredAt: new Date().toISOString(),
-    faceDescriptor: hasValidDescriptor ? faceDescriptor : (existingIdx >= 0 ? users[existingIdx].faceDescriptor : null),
+    faceDescriptor: faceDescriptor,
     stats: existingIdx >= 0 ? users[existingIdx].stats : { sessionsCompleted: 0, avgScore: 88, challengeWins: 0, challengeLosses: 0 },
     badges: existingIdx >= 0 ? users[existingIdx].badges : ['interview_ready']
   };
@@ -129,7 +152,7 @@ app.post('/api/auth/register', (req, res) => {
 
   res.json({
     success: true,
-    message: hasValidDescriptor ? 'Account registered and 128-D Face Biometrics enrolled!' : 'Account registered successfully.',
+    message: 'Account registered and 128-D Face Biometrics strictly enrolled!',
     user: {
       id: newUser.id,
       email: newUser.email,
@@ -137,7 +160,7 @@ app.post('/api/auth/register', (req, res) => {
       name: newUser.name,
       role: newUser.role,
       avatar: newUser.avatar,
-      hasFaceRegistered: hasValidDescriptor,
+      hasFaceRegistered: true,
       faceDescriptor: newUser.faceDescriptor,
       stats: newUser.stats,
       badges: newUser.badges
@@ -281,9 +304,28 @@ app.post('/api/auth/login', (req, res) => {
   const user = users.find(u => (u.email && u.email.toLowerCase() === identifier) || (u.username && u.username.toLowerCase() === identifier));
 
   if (user) {
+    if (Array.isArray(user.faceDescriptor) && user.faceDescriptor.length === 128) {
+      const { faceDescriptor } = req.body;
+      if (Array.isArray(faceDescriptor) && faceDescriptor.length === 128) {
+        const dist = calculateEuclideanDistance(faceDescriptor, user.faceDescriptor);
+        if (dist > MATCH_THRESHOLD) {
+          return res.status(401).json({
+            success: false,
+            message: `Authentication Denied: Scanned face does NOT match the registered biometric owner of ${identifier}.`
+          });
+        }
+      } else {
+        return res.status(403).json({
+          success: false,
+          requireFaceScan: true,
+          message: `Biometric Lock Active: Face scan verification is mandatory for ${user.name}.`
+        });
+      }
+    }
+
     return res.json({
       success: true,
-      message: `Logged in as ${user.name}`,
+      message: `Biometric Identity Verified! Logged in as ${user.name}`,
       user: {
         id: user.id,
         email: user.email,
@@ -299,27 +341,9 @@ app.post('/api/auth/login', (req, res) => {
     });
   }
 
-  // Auto-register candidate
-  const guestUser = {
-    id: `usr_${Date.now()}`,
-    email: identifier.includes('@') ? identifier : `${identifier}@example.com`,
-    username: identifier.split('@')[0],
-    name: identifier.split('@')[0].charAt(0).toUpperCase() + identifier.split('@')[0].slice(1),
-    role: 'Executive Candidate',
-    avatar: `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(identifier)}`,
-    registeredAt: new Date().toISOString(),
-    faceDescriptor: null,
-    stats: { sessionsCompleted: 0, avgScore: 85, challengeWins: 0, challengeLosses: 0 },
-    badges: ['interview_ready']
-  };
-
-  users.push(guestUser);
-  writeJson(USERS_FILE, users);
-
-  res.json({
-    success: true,
-    message: `Account created for ${guestUser.name}`,
-    user: guestUser
+  return res.status(404).json({
+    success: false,
+    message: `No account found for "${identifier}". Please register your email and face first.`
   });
 });
 

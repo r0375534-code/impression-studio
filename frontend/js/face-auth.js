@@ -15,7 +15,7 @@ class FaceAuthEngine {
     this.authStream = null;
     this.authScanInterval = null;
     this.enrollmentSamples = [];
-    this.MATCH_THRESHOLD = 0.55; // Face-API standard distance threshold
+    this.MATCH_THRESHOLD = 0.50; // Strict Face-API distance threshold (One User, One Face)
 
     this.init();
   }
@@ -241,9 +241,24 @@ class FaceAuthEngine {
       return;
     }
 
-    if (!this.capturedDescriptor) {
-      const proceedWithoutFace = confirm("You have not scanned your face yet. Enrolling your face ensures that ONLY you can use your login session. Would you like to proceed without face lock?");
-      if (!proceedWithoutFace) return;
+    if (!this.capturedDescriptor || !Array.isArray(this.capturedDescriptor) || this.capturedDescriptor.length !== 128) {
+      alert("Biometric Face Scan is MANDATORY.\n\nPlease align your face inside the guide and click 'Capture Face' before registering.\n\nPolicy: One User, One Login, One Face.");
+      return;
+    }
+
+    // STRICT BIOMETRIC CHECK: Ensure this face is not registered to another account
+    const localUsers = JSON.parse(localStorage.getItem(CONFIG.STORAGE_KEYS.LOCAL_USERS) || '[]');
+    const duplicateFace = localUsers.find(u => {
+      if ((u.email && u.email.toLowerCase() === email) || (u.username && u.username.toLowerCase() === username)) return false;
+      if (Array.isArray(u.faceDescriptor) && u.faceDescriptor.length === 128) {
+        return this.euclideanDistance(this.capturedDescriptor, u.faceDescriptor) <= this.MATCH_THRESHOLD;
+      }
+      return false;
+    });
+
+    if (duplicateFace) {
+      alert(`Biometric Conflict: This face is already enrolled under account "${duplicateFace.name}" (${duplicateFace.email || duplicateFace.username}).\n\nEach face can only be linked to ONE user account. One user, one face policy.`);
+      return;
     }
 
     if (submitBtn) {
@@ -257,7 +272,7 @@ class FaceAuthEngine {
       name,
       role,
       avatar: this.capturedThumbnail || `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(username || email)}`,
-      faceDescriptor: this.capturedDescriptor || null
+      faceDescriptor: this.capturedDescriptor
     };
 
     let registeredUser = null;
@@ -272,6 +287,13 @@ class FaceAuthEngine {
       if (resp.ok) {
         const data = await resp.json();
         registeredUser = data.user;
+      } else {
+        const errData = await resp.json().catch(() => ({}));
+        if (resp.status === 409) {
+          alert(errData.message || "Biometric duplicate: This face is already enrolled under another account.");
+          if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = "Save Account & Enroll Biometric Face"; }
+          return;
+        }
       }
     } catch (err) {
       console.warn('Backend registration failed, saving locally:', err);
@@ -451,44 +473,28 @@ class FaceAuthEngine {
       const localUsers = JSON.parse(localStorage.getItem(CONFIG.STORAGE_KEYS.LOCAL_USERS) || '[]');
       user = localUsers.find(u => (u.email && u.email.toLowerCase() === cleanEmail) || (u.username && u.username.toLowerCase() === cleanEmail));
       if (!user) {
-        const shouldRegister = confirm(`Account for "${cleanEmail}" not found. Would you like to register this email with your Face ID now?`);
-        if (shouldRegister) {
-          this.switchAuthTab('register');
-          const regEmailInput = document.getElementById('regEmail');
-          if (regEmailInput) regEmailInput.value = cleanEmail;
-          const regNameInput = document.getElementById('regName');
-          if (regNameInput) {
-            regNameInput.value = cleanEmail.split('@')[0].charAt(0).toUpperCase() + cleanEmail.split('@')[0].slice(1);
-            regNameInput.focus();
-          }
-          return;
-        } else {
-          user = {
-            id: `usr_${Date.now()}`,
-            email: isEmail ? cleanEmail : `${cleanEmail}@candidate.ai`,
-            username: cleanEmail.split('@')[0],
-            name: cleanEmail.split('@')[0].charAt(0).toUpperCase() + cleanEmail.split('@')[0].slice(1),
-            role: 'Executive Candidate',
-            avatar: `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(cleanEmail)}`,
-            hasFaceRegistered: false,
-            faceDescriptor: null,
-            stats: { sessionsCompleted: 0, avgScore: 85, challengeWins: 0, challengeLosses: 0 },
-            badges: ['interview_ready']
-          };
-          localUsers.push(user);
-          localStorage.setItem(CONFIG.STORAGE_KEYS.LOCAL_USERS, JSON.stringify(localUsers));
+        alert(`Account for "${cleanEmail}" not found.\n\nPlease register with your Face ID first. Policy: One User, One Login, One Face.`);
+        this.switchAuthTab('register');
+        const regEmailInput = document.getElementById('regEmail');
+        if (regEmailInput) regEmailInput.value = cleanEmail;
+        const regNameInput = document.getElementById('regName');
+        if (regNameInput) {
+          regNameInput.value = cleanEmail.split('@')[0].charAt(0).toUpperCase() + cleanEmail.split('@')[0].slice(1);
+          regNameInput.focus();
         }
+        return;
       }
     }
 
-    this.setUserSession(user);
-    this.closeAuthModal();
-
-    if (user.hasFaceRegistered && Array.isArray(user.faceDescriptor) && user.faceDescriptor.length === 128) {
-      alert(`Signed in as ${user.name} (${user.email || user.username})!\nIdentity Lock ACTIVE: Only your face will be recognized in this session.`);
-    } else {
-      alert(`Signed in as ${user.name}.\nNote: Face ID is not enrolled for this account yet. Register your face in the menu to activate single-user lock!`);
+    if (!user.hasFaceRegistered || !Array.isArray(user.faceDescriptor) || user.faceDescriptor.length !== 128) {
+      alert(`Account found for ${user.name}, but no biometric face profile is enrolled.\n\nPlease enroll your face to activate single-user lock.`);
+      this.switchAuthTab('register');
+      return;
     }
+
+    // MANDATORY BIOMETRIC IDENTITY VERIFICATION
+    alert(`Account confirmed for ${user.name}.\n\nBiometric Verification Required: Please look directly into the camera to confirm your identity.`);
+    this.switchAuthTab('face-login');
   }
 
   submitPasswordLogin(e) {

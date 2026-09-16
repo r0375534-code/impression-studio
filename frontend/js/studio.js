@@ -170,41 +170,59 @@ class StudioEngine {
       }
 
       let detectionResult = null;
-      let identityMismatch = false;
+      let securityViolation = null; // null | 'no_face' | 'unauthorized_face' | 'multiple_faces' | 'not_logged_in'
+      let unauthorizedFaces = [];
+      let verifiedUserName = "";
 
       if (window.isModelsLoaded && typeof faceapi !== 'undefined' && faceapi.nets.tinyFaceDetector.params) {
         try {
-          // Check if registered user session has enrolled face biometrics
           const currentUser = window.faceAuth && window.faceAuth.getUser ? window.faceAuth.getUser() : null;
           const hasEnrolledBiometrics = currentUser && Array.isArray(currentUser.faceDescriptor) && currentUser.faceDescriptor.length === 128;
 
-          if (hasEnrolledBiometrics && faceapi.nets.faceRecognitionNet && faceapi.nets.faceRecognitionNet.params) {
-            const detected = await faceapi
-              .detectSingleFace(video, new faceapi.TinyFaceDetectorOptions({ inputSize: 224, scoreThreshold: 0.4 }))
-              .withFaceLandmarks()
-              .withFaceExpressions()
-              .withFaceDescriptor();
+          // 1. Detect ALL faces in frame (strict check: NO OTHER FACE allowed)
+          const allDetections = await faceapi
+            .detectAllFaces(video, new faceapi.TinyFaceDetectorOptions({ inputSize: 224, scoreThreshold: 0.4 }))
+            .withFaceLandmarks()
+            .withFaceExpressions()
+            .withFaceDescriptors();
 
-            if (detected && detected.descriptor) {
-              const liveDescriptor = Array.from(detected.descriptor);
+          if (!allDetections || allDetections.length === 0) {
+            securityViolation = 'no_face';
+            detectionResult = null;
+          } else if (allDetections.length > 1) {
+            // STRICT ALERT: Multiple faces in camera frame!
+            securityViolation = 'multiple_faces';
+            detectionResult = null;
+            unauthorizedFaces = allDetections;
+          } else {
+            // Exactly ONE face detected
+            const detected = allDetections[0];
+
+            if (!currentUser) {
+              securityViolation = 'not_logged_in';
+              detectionResult = null;
+              unauthorizedFaces = [detected];
+            } else if (!hasEnrolledBiometrics) {
+              securityViolation = 'not_logged_in';
+              detectionResult = null;
+              unauthorizedFaces = [detected];
+            } else {
+              // Match face against the logged-in candidate
+              const liveDescriptor = Array.from(detected.descriptor || []);
               const dist = window.faceAuth.euclideanDistance(liveDescriptor, currentUser.faceDescriptor);
 
-              // Strict Lock: If another person's face is seen, strictly treat as NO FACE DETECTED
-              if (dist <= 0.55) {
+              if (dist <= 0.50) {
+                // VERIFIED: Registered owner confirmed
                 detectionResult = detected;
+                securityViolation = null;
+                verifiedUserName = currentUser.name || "Verified Owner";
               } else {
-                // Different person's face: strictly ignored and treated as NO FACE DETECTED
+                // UNAUTHORIZED: A different face detected in portal!
+                securityViolation = 'unauthorized_face';
                 detectionResult = null;
-                identityMismatch = true;
+                unauthorizedFaces = [detected];
               }
-            } else {
-              detectionResult = null;
             }
-          } else {
-            detectionResult = await faceapi
-              .detectSingleFace(video, new faceapi.TinyFaceDetectorOptions({ inputSize: 224, scoreThreshold: 0.4 }))
-              .withFaceLandmarks()
-              .withFaceExpressions();
           }
         } catch (e) {
           detectionResult = null;
@@ -216,14 +234,62 @@ class StudioEngine {
       canvas.height = video.clientHeight || 480;
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-      if (detectionResult) {
-        const dims = faceapi.matchDimensions(canvas, { width: canvas.width, height: canvas.height });
-        const resized = faceapi.resizeResults(detectionResult, dims);
-        faceapi.draw.drawDetections(canvas, resized);
+      const dims = { width: canvas.width, height: canvas.height };
+
+      if (detectionResult && !securityViolation) {
+        // Draw Verified Emerald Green Box & Tag
+        const dimsMatch = faceapi.matchDimensions(canvas, dims);
+        const resized = faceapi.resizeResults(detectionResult, dimsMatch);
+        const box = resized.detection.box;
+
+        ctx.strokeStyle = '#10b981';
+        ctx.lineWidth = 3;
+        ctx.strokeRect(box.x, box.y, box.width, box.height);
+
+        ctx.fillStyle = 'rgba(16, 185, 129, 0.9)';
+        ctx.fillRect(box.x, Math.max(0, box.y - 28), Math.max(160, box.width), 26);
+        ctx.fillStyle = '#ffffff';
+        ctx.font = 'bold 12px "JetBrains Mono", monospace';
+        ctx.fillText(`✓ VERIFIED: ${verifiedUserName}`, box.x + 8, Math.max(16, box.y - 10));
 
         this.processFaceMetrics(detectionResult, canvas.width, canvas.height);
       } else {
-        this.processNoFaceDetected(identityMismatch);
+        // Draw Security Alerts on Canvas for unauthorized / multiple faces
+        if (unauthorizedFaces && unauthorizedFaces.length > 0) {
+          const dimsMatch = faceapi.matchDimensions(canvas, dims);
+          const resizedFaces = faceapi.resizeResults(unauthorizedFaces, dimsMatch);
+
+          resizedFaces.forEach((f, idx) => {
+            const b = f.detection.box;
+            ctx.strokeStyle = '#ef4444';
+            ctx.lineWidth = 3;
+            ctx.strokeRect(b.x, b.y, b.width, b.height);
+
+            ctx.fillStyle = 'rgba(239, 68, 68, 0.95)';
+            ctx.fillRect(b.x, Math.max(0, b.y - 28), Math.max(200, b.width), 26);
+            ctx.fillStyle = '#ffffff';
+            ctx.font = 'bold 11px "JetBrains Mono", monospace';
+            const badgeLabel = securityViolation === 'multiple_faces'
+              ? `⚠ MULTIPLE FACES (#${idx + 1})`
+              : (securityViolation === 'not_logged_in' ? '🔒 PLEASE LOG IN' : '⛔ UNAUTHORIZED FACE');
+            ctx.fillText(badgeLabel, b.x + 6, Math.max(16, b.y - 10));
+          });
+
+          // Top Red HUD Banner
+          ctx.fillStyle = 'rgba(220, 38, 38, 0.95)';
+          ctx.fillRect(10, 10, canvas.width - 20, 34);
+          ctx.fillStyle = '#ffffff';
+          ctx.font = 'bold 12px "JetBrains Mono", monospace';
+          ctx.textAlign = 'center';
+          const topMsg = securityViolation === 'multiple_faces'
+            ? 'SECURITY ALERT: MULTIPLE PERSONS DETECTED — ONLY 1 ALLOWED'
+            : (securityViolation === 'not_logged_in' ? 'PORTAL LOCKED — PLEASE LOG IN WITH YOUR FACE ID' : 'SECURITY LOCK: UNAUTHORIZED FACE DETECTED — ANALYSIS PAUSED');
+          ctx.fillText(topMsg, canvas.width / 2, 32);
+          ctx.textAlign = 'left';
+        }
+
+        const currentUser = window.faceAuth && window.faceAuth.getUser ? window.faceAuth.getUser() : null;
+        this.processNoFaceDetected(securityViolation, currentUser ? currentUser.name : '');
       }
 
       this.analyzeLightingQuality(video);
@@ -320,8 +386,18 @@ class StudioEngine {
     this.updateRealtimeUI();
   }
 
-  processNoFaceDetected(identityMismatch = false) {
+  processNoFaceDetected(securityViolation = 'no_face', ownerName = '') {
     this.totalFramesProcessed++;
+    let warningMsg = "No Face Detected";
+
+    if (securityViolation === 'multiple_faces') {
+      warningMsg = "Security Alert: Multiple Faces Detected";
+    } else if (securityViolation === 'unauthorized_face') {
+      warningMsg = `Security Lock: Unauthorized Face Detected (${ownerName ? 'Locked to ' + ownerName : 'Different Person'})`;
+    } else if (securityViolation === 'not_logged_in') {
+      warningMsg = "Portal Locked: Please Log In with Face ID";
+    }
+
     this.currentMetrics = {
       ...this.currentMetrics,
       smile: 0,
@@ -330,13 +406,13 @@ class StudioEngine {
       posture: 0,
       steadiness: 0,
       overall: 0,
-      postureWarning: "No Face Detected",
+      postureWarning: warningMsg,
       microFocus: 0,
       microSurprise: 0,
       microStress: 0
     };
     if (typeof pushEmotionTimeline === 'function') pushEmotionTimeline("neutral");
-    this.updateRealtimeUI(identityMismatch);
+    this.updateRealtimeUI(securityViolation, ownerName);
   }
 
   analyzeLightingQuality(videoEl) {
@@ -457,26 +533,26 @@ class StudioEngine {
   /* --------------------------------------------------------------------------
      UI UPDATES & ADVISOR TIPS
      -------------------------------------------------------------------------- */
-  updateRealtimeUI(identityMismatch = false) {
+  updateRealtimeUI(securityViolation = null, ownerName = '') {
     const { overall, smile, eyeContact, composure, posture, steadiness, postureWarning, microFocus, microSurprise, microStress } = this.currentMetrics;
 
-    const isNoFace = postureWarning === "No Face Detected";
+    const isBlocked = !!securityViolation || postureWarning.startsWith("Security") || postureWarning === "No Face Detected" || postureWarning.startsWith("Portal Locked");
 
     const gaugeRing = document.getElementById('gaugeFillRing');
     if (gaugeRing) {
-      const offset = isNoFace ? 364.4 : (364.4 - (364.4 * (overall / 100)));
+      const offset = isBlocked ? 364.4 : (364.4 - (364.4 * (overall / 100)));
       gaugeRing.style.strokeDashoffset = offset;
     }
 
     const scoreNumMain = document.getElementById('scoreNumMain');
-    if (scoreNumMain) scoreNumMain.textContent = isNoFace ? "--" : overall;
+    if (scoreNumMain) scoreNumMain.textContent = isBlocked ? "--" : overall;
 
     const setBar = (barId, valId, val) => {
       const b = document.getElementById(barId);
       const v = document.getElementById(valId);
-      const effectiveVal = isNoFace ? 0 : val;
+      const effectiveVal = isBlocked ? 0 : val;
       if (b) b.style.width = `${effectiveVal}%`;
-      if (v) v.textContent = isNoFace ? "--" : `${effectiveVal}%`;
+      if (v) v.textContent = isBlocked ? "--" : `${effectiveVal}%`;
     };
 
     setBar('barSmile', 'valSmile', smile);
@@ -488,10 +564,10 @@ class StudioEngine {
     setBar('barMicroStress', 'valMicroStress', microStress);
 
     const badgeStab = document.getElementById('badgeStability');
-    if (badgeStab) badgeStab.querySelector('span').textContent = isNoFace ? "--" : `${steadiness}%`;
+    if (badgeStab) badgeStab.querySelector('span').textContent = isBlocked ? "--" : `${steadiness}%`;
 
     const badgeEye = document.getElementById('badgeEyeTimer');
-    if (badgeEye) badgeEye.querySelector('span').textContent = isNoFace ? "--" : `${eyeContact}%`;
+    if (badgeEye) badgeEye.querySelector('span').textContent = isBlocked ? "--" : `${eyeContact}%`;
 
     const badgePost = document.getElementById('badgePosture');
     if (badgePost) badgePost.querySelector('span').textContent = postureWarning;
@@ -499,7 +575,7 @@ class StudioEngine {
     const postureToast = document.getElementById('postureWarningBanner');
     if (postureToast) {
       if (postureWarning !== "Centered & Upright") {
-        document.getElementById('postureWarningText').textContent = isNoFace ? (identityMismatch ? "Security Lock: Unauthorized Face (No Face Detected)" : "Posture Alert: No Face Detected") : `Posture Alert: ${postureWarning}`;
+        document.getElementById('postureWarningText').textContent = postureWarning;
         postureToast.classList.remove('opacity-0');
       } else {
         postureToast.classList.add('opacity-0');
@@ -514,17 +590,34 @@ class StudioEngine {
     const coachingCard = document.getElementById('aiCoachingCard');
 
     if (tagBadge && titleText) {
-      if (isNoFace) {
+      if (securityViolation === 'multiple_faces') {
+        tagBadge.textContent = "MULTIPLE FACES DETECTED";
+        tagBadge.className = "inline-block px-3 py-1 rounded-full text-[10px] font-mono font-bold tracking-wider bg-red-500/20 text-red-500 border border-red-500/40 animate-pulse";
+        titleText.textContent = "Security Alert: Extra Person in Frame";
+        descText.textContent = "Portal policy enforces exactly one registered candidate. Multiple faces detected.";
+        tipText.textContent = "Ensure only you are in front of the camera to continue analysis.";
+        coachingCard.className = "bg-red-900/30 border border-red-500/50 p-4 rounded-xl flex items-start gap-3 transition-colors duration-500";
+      } else if (securityViolation === 'unauthorized_face') {
+        tagBadge.textContent = "UNAUTHORIZED FACE BLOCKED";
+        tagBadge.className = "inline-block px-3 py-1 rounded-full text-[10px] font-mono font-bold tracking-wider bg-red-500/20 text-red-500 border border-red-500/40 animate-pulse";
+        titleText.textContent = `Security Lock: Not Registered Owner (${ownerName})`;
+        descText.textContent = "Detected face does not match the 128-D biometric identity of the logged-in candidate.";
+        tipText.textContent = "Only the authenticated account owner may use this portal. All metrics paused.";
+        coachingCard.className = "bg-red-900/30 border border-red-500/50 p-4 rounded-xl flex items-start gap-3 transition-colors duration-500";
+      } else if (securityViolation === 'not_logged_in') {
+        tagBadge.textContent = "PORTAL LOCKED";
+        tagBadge.className = "inline-block px-3 py-1 rounded-full text-[10px] font-mono font-bold tracking-wider bg-amber-500/20 text-amber-500 border border-amber-500/40";
+        titleText.textContent = "Single-User Biometric Lock Active";
+        descText.textContent = "Please sign in or register with your Face ID to unlock the AI Impression Studio.";
+        tipText.textContent = "Click 'Email Login / Face ID' in the top header to authenticate.";
+        coachingCard.className = "bg-amber-900/20 border border-amber-500/30 p-4 rounded-xl flex items-start gap-3 transition-colors duration-500";
+      } else if (isBlocked) {
         tagBadge.textContent = "NO FACE DETECTED";
         tagBadge.className = "inline-block px-3 py-1 rounded-full text-[10px] font-mono font-bold tracking-wider bg-red-500/20 text-red-500 border border-red-500/40";
-        titleText.textContent = identityMismatch ? "Identity Mismatch: No Registered Face Detected" : "No Face Detected";
-        descText.textContent = identityMismatch 
-          ? "Another person's face was seen in your login. This session is locked to the registered account owner only."
-          : "No face is detected right now — make sure your face is visible, well-lit, and centered in frame.";
-        tipText.textContent = identityMismatch
-          ? "Only the registered user can train and score points. Please have the account owner face the camera to resume."
-          : "Check that the camera isn't blocked and your face is inside the frame, then scores will resume.";
-        coachingCard.className = "bg-red-900/10 border border-red-500/30 p-4 rounded-xl flex items-start gap-3 transition-colors duration-500";
+        titleText.textContent = "Position Your Face in Frame";
+        descText.textContent = "Camera is searching for the registered candidate. Center your face directly in the viewport.";
+        tipText.textContent = "Ensure adequate front lighting and face the camera lens.";
+        coachingCard.className = "bg-brand-cardBg/90 border border-brand-border p-4 rounded-xl flex items-start gap-3 transition-colors duration-500";
       } else if (overall >= 85) {
         tagBadge.textContent = "EXECUTIVE READY";
         tagBadge.className = "inline-block px-3 py-1 rounded-full text-[10px] font-mono font-bold tracking-wider bg-brand-500/20 text-brand-600 border border-brand-500/40";
