@@ -1,0 +1,289 @@
+[
+  {
+    "id": "usr_alex_vance",
+    "email": "alex@vision.ai",
+    "username": "alexvance",
+    "name": "Alex Vance",
+    "role": "Senior Executive",
+    "avatar": "https://api.dicebear.com/7.x/bottts/svg?seed=alex",
+    "registeredAt": "2026-08-01T10:00:00.000Z",
+    "faceDescriptor": null,
+    "following": [
+      "usr_elena_rostova",
+      "usr_marcus_chen",
+      "usr_david_kim"
+    ],
+    "followers": [
+      "usr_elena_rostova",
+      "usr_sarah_jenkins",
+      "usr_david_kim"
+    ],
+    "friendRequests": [],
+    "stats": {
+      "sessionsCompleted": 19,
+      "avgScore": 93,
+      "challengeWins": 12,
+      "challengeLosses": 3
+    },
+    "gamification": {
+      "xp": 2596,
+      "level": 6,
+      "currentStreak": 7,
+      "longestStreak": 14,
+      "lastSessionDate": "2026-09-16",
+      "coins": 360,
+      "unlockedAchievements": [
+        "first_session",
+        "sessions_5",
+        "sessions_10",
+        "streak_3",
+        "streak_7",
+        "high_scorer",
+        "level_5"
+      ],
+      "dailyTasks": [
+        {
+          "id": "task_calib",
+          "title": "Diagnostic Calibration",
+          "desc": "Complete 1 camera & posture calibration",
+          "xpReward": 50,
+          "coinsReward": 10,
+          "completed": true,
+          "claimed": true
+        },
+        {
+          "id": "task_smile",
+          "title": "Executive Warmth",
+          "desc": "Hold ≥ 75% smile warmth for 15 seconds",
+          "xpReward": 75,
+          "coinsReward": 15,
+          "completed": true,
+          "claimed": false
+        },
+        {
+          "id": "task_eye",
+          "title": "Laser Eye Contact",
+          "desc": "Maintain ≥ 80% direct eye contact in session",
+          "xpReward": 75,
+          "coinsReward": 15,
+          "completed": true,
+          "claimed": false
+        },
+        {
+          "id": "task_voice",
+          "title": "Vocal Presence",
+          "desc": "Complete audio speech analysis with pace 110-160 wpm",
+          "xpReward": 100,
+          "coinsReward": 20,
+          "completed": true,
+          "claimed": false
+        },
+        {
+          "id": "task_duel",
+          "title": "Arena Contender",
+          "desc": "Challenge or compete in a 1v1 battle duel",
+          "xpReward": 150,
+          "coinsReward": 30,
+          "completed": false,
+          "claimed": false
+        }
+      ],
+      "dailyTasksDate": "2026-09-16"
+    },
+    "badges": [
+      "interview_ready",
+      "radiant_smile",
+      "iron_composure",
+      "silver_tongue"
+    ]
+  },
+  {
+    "id": "usr_elena_rostova",
+    "email": "elena@vision.ai",
+    "username": "elenarostova",
+    "name": "Elena Rostova",
+    "role": "Product Director",
+    "avatar": "https://api.dicebear.com/7.x/bottts/svg?seed=elena",
+    "registeredAt": "2026-08-02T11:30:00.000Z",
+    "faceDescriptor": null,
+    "following": [
+      "usr_alex_vance"
+    ],
+    "followers": [
+      "usr_alex_vance",
+      "usr_david_kim"
+    ],
+    "friendRequests": [
+      {
+        "id": "freq_elena_1",
+        "fromId": "usr_sarah_jenkins",
+        "fromName": "Sarah Jenkins",
+        "fromAvatar": "https://api.dicebear.com/7.x/bottts/svg?seed=sarah",
+        "fromRole": "Managing Partner",
+        "status": "pending",
+        "timestamp": "2026-09-16T09:15:00.000Z"
+      }
+    ],
+    "stats": {
+      "sessionsCompleted": 15,
+      "avgScore": 91,
+      "challengeWins": 11,
+      "challengeLosses": 5
+    },
+    "gamification": {
+      "xp": 1850,
+      "level": 4,
+      "currentStreak": 5,
+      "longestStreak": 9,
+      "lastSessionDate": "2026-09-16",
+      "coins": 240,
+      "unlockedAchievements": [
+        "first_session",
+        "sessions_5",
+        "sessions_10",
+        "streak_3",
+        "high_scorer"
+      ]
+    },
+    "badges": [
+      "interview_ready",
+      "eye_contact_master",
+      "silver_tongue"
+    ]
+  },
+  {
+    "id": "usr_marcus_chen",
+    "email": "marcus@vision.ai",
+    "username": "marcuschen",
+    "name": "Marcus Chen",
+    "role": "Tech Lead",
+    "avatar": "https://api.dicebear.com/7.x/bottts/svg?seed=marcus",
+    "registeredAt": "2026-08-03T14:15:00.000Z",
+    "faceDescriptor": null,
+    "following": [
+      "usr_alex_vance",
+      "usr_sarah_jenkins"
+    ],
+    "followers": [
+      "usr_alex_vance"
+    ],
+    "friendRequests": [],
+    "stats": {
+      "sessionsCompleted": 10,
+      "avgScore": 88,
+      "challengeWins": 7,
+      "challengeLosses": 4
+    },
+    "gamification": {
+      "xp": 1200,
+      "level": 3,
+      "currentStreak": 3,
+      "longestStreak": 6,
+      "lastSessionDate": "2026-09-15",
+      "coins": 150,
+      "unlockedAchievements": [
+        "first_session",
+        "sessions_5",
+        "sessions_10",
+        "streak_3"
+      ]
+    },
+    "badges": [
+      "interview_ready",
+      "perfect_posture"
+    ]
+  },
+  {
+    "id": "usr_sarah_jenkins",
+    "email": "sarah@vision.ai",
+    "username": "sarahjenkins",
+    "name": "Sarah Jenkins",
+    "role": "Managing Partner",
+    "avatar": "https://api.dicebear.com/7.x/bottts/svg?seed=sarah",
+    "registeredAt": "2026-08-10T09:00:00.000Z",
+    "faceDescriptor": null,
+    "following": [
+      "usr_alex_vance"
+    ],
+    "followers": [
+      "usr_marcus_chen"
+    ],
+    "friendRequests": [
+      {
+        "id": "freq_sarah_1",
+        "fromId": "usr_alex_vance",
+        "fromName": "Alex Vance",
+        "fromAvatar": "https://api.dicebear.com/7.x/bottts/svg?seed=alex",
+        "fromRole": "Senior Executive",
+        "status": "pending",
+        "timestamp": "2026-09-16T07:45:00.000Z"
+      }
+    ],
+    "stats": {
+      "sessionsCompleted": 14,
+      "avgScore": 93,
+      "challengeWins": 9,
+      "challengeLosses": 2
+    },
+    "gamification": {
+      "xp": 1720,
+      "level": 4,
+      "currentStreak": 6,
+      "longestStreak": 11,
+      "lastSessionDate": "2026-09-16",
+      "coins": 260,
+      "unlockedAchievements": [
+        "first_session",
+        "sessions_5",
+        "sessions_10",
+        "streak_3",
+        "high_scorer"
+      ]
+    },
+    "badges": [
+      "interview_ready",
+      "iron_composure",
+      "radiant_smile"
+    ]
+  },
+  {
+    "id": "usr_david_kim",
+    "email": "david@vision.ai",
+    "username": "davidkim",
+    "name": "David Kim",
+    "role": "VP of Strategy",
+    "avatar": "https://api.dicebear.com/7.x/bottts/svg?seed=david",
+    "registeredAt": "2026-08-15T16:00:00.000Z",
+    "faceDescriptor": null,
+    "following": [
+      "usr_elena_rostova",
+      "usr_alex_vance"
+    ],
+    "followers": [
+      "usr_alex_vance"
+    ],
+    "friendRequests": [],
+    "stats": {
+      "sessionsCompleted": 6,
+      "avgScore": 86,
+      "challengeWins": 4,
+      "challengeLosses": 3
+    },
+    "gamification": {
+      "xp": 820,
+      "level": 2,
+      "currentStreak": 2,
+      "longestStreak": 4,
+      "lastSessionDate": "2026-09-15",
+      "coins": 95,
+      "unlockedAchievements": [
+        "first_session",
+        "sessions_5"
+      ]
+    },
+    "badges": [
+      "interview_ready",
+      "eye_contact_master"
+    ]
+  }
+]

@@ -1,0 +1,1574 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI First Impression Analyzer Pro | Vision & Audio Intelligence Studio</title>
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#fdf9f4',
+              100: '#f6ede2',
+              200: '#eddac6',
+              300: '#dec3a4',
+              400: '#c9a07a',
+              500: '#9e6b41',
+              600: '#7c502b',
+              700: '#633d1f',
+              800: '#482a14',
+              900: '#2e1a0a',
+              accent: '#b07d52',
+              darkBg: '#ffffff',
+              cardBg: '#faf5ee',
+              border: '#e8d9c8'
+            }
+          },
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            display: ['Space Grotesk', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace']
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
+  
+  <!-- Face API JS -->
+  <script src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
+
+  <!-- Chart.js for Trend Dashboards & Radar Charts -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- jsPDF & html2canvas for PDF and PNG Social Card Export -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+  <!-- Canvas Confetti for Executive Celebrations -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+  <!-- Application Custom CSS -->
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="min-h-screen pb-12">
+
+  <!-- ========================================================================
+       TOP HEADER & NAVIGATION BAR
+       ======================================================================== -->
+  <header class="sticky top-0 z-40 border-b border-brand-border bg-brand-darkBg/90 backdrop-blur-md px-4 lg:px-8 py-3.5">
+    <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
+      
+      <!-- Brand Logo -->
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-600 to-brand-accent flex items-center justify-center text-white font-bold text-xl shadow-lg shadow-brand-500/20">
+          <i class="fa-solid fa-brain"></i>
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <span class="font-mono text-[10px] tracking-widest text-brand-400 uppercase font-semibold">Executive Intelligence</span>
+            <span class="text-slate-400 text-[10px] font-mono">&bull; Real-time Vision Lab</span>
+          </div>
+          <h1 class="font-display font-bold text-lg md:text-xl text-slate-800 tracking-tight">
+            First Impression <span class="text-brand-accent">Analyzer</span>
+          </h1>
+        </div>
+      </div>
+
+      <!-- Navigation Tabs (Single Unbroken Line) -->
+      <nav class="flex items-center gap-1 bg-brand-cardBg/90 p-1 rounded-xl border border-brand-border text-xs font-medium flex-nowrap overflow-x-auto max-w-full">
+        <button id="navStudio" onclick="switchTab('studio')" class="tab-btn shrink-0 active px-3.5 py-2 rounded-lg text-white bg-brand-600 font-semibold shadow-sm transition-all flex items-center gap-2 whitespace-nowrap">
+          <i class="fa-solid fa-camera"></i> Live Studio
+        </button>
+        <button id="navInterview" onclick="switchTab('interview')" class="tab-btn shrink-0 px-3.5 py-2 rounded-lg text-slate-500 hover:text-slate-800 transition-all flex items-center gap-2 whitespace-nowrap">
+          <i class="fa-solid fa-user-tie"></i> AI Interview
+        </button>
+        <button id="navPractice" onclick="switchTab('practice')" class="tab-btn shrink-0 px-3.5 py-2 rounded-lg text-slate-500 hover:text-slate-800 transition-all flex items-center gap-2 whitespace-nowrap">
+          <i class="fa-solid fa-bullseye"></i> Practice Mode
+        </button>
+        <button id="navChallenge" onclick="switchTab('challenge')" class="tab-btn shrink-0 px-3.5 py-2 rounded-lg text-slate-500 hover:text-slate-800 transition-all flex items-center gap-2 whitespace-nowrap">
+          <i class="fa-solid fa-gamepad text-amber-500"></i> 2-Player Challenge
+        </button>
+        <!-- Restored Friends & Social Hub Tab -->
+        <button id="navFriends" onclick="switchTab('friends')" class="tab-btn shrink-0 px-3.5 py-2 rounded-lg text-slate-500 hover:text-slate-800 transition-all flex items-center gap-2 whitespace-nowrap">
+          <i class="fa-solid fa-users text-brand-500"></i> Friends &amp; Social
+          <span id="pendingReqCount" class="hidden ml-1 px-1.5 py-0.5 rounded-full text-[9px] font-bold bg-red-500 text-white"></span>
+        </button>
+        <button id="navAnalytics" onclick="switchTab('analytics')" class="tab-btn shrink-0 px-3.5 py-2 rounded-lg text-slate-500 hover:text-slate-800 transition-all flex items-center gap-2 whitespace-nowrap">
+          <i class="fa-solid fa-chart-line"></i> Analytics
+        </button>
+        <button id="navBadges" onclick="switchTab('badges')" class="tab-btn shrink-0 px-3.5 py-2 rounded-lg text-slate-500 hover:text-slate-800 transition-all flex items-center gap-2 whitespace-nowrap">
+          <i class="fa-solid fa-trophy"></i> Badges &amp; Gamification
+        </button>
+      </nav>
+
+      <!-- User Auth Bar & Theme Toggle -->
+      <div class="flex items-center gap-3">
+        <!-- System Status Pill -->
+        <div id="systemStatusPill" class="hidden sm:flex items-center gap-2 bg-brand-cardBg px-3 py-1.5 rounded-full border border-brand-border font-mono text-xs text-slate-600">
+          <span id="statusLed" class="w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse"></span>
+          <span id="statusText">Initializing AI Engine...</span>
+        </div>
+
+        <!-- Biometric User Auth Status Widget -->
+        <div id="headerAuthArea">
+          <!-- Unauthenticated State -->
+          <div id="headerAuthUnauth" class="flex items-center gap-2">
+            <button onclick="faceAuth.openAuthModal('email')" class="px-3.5 py-1.5 bg-gradient-to-r from-brand-600 to-brand-accent hover:opacity-90 text-white font-mono text-xs font-semibold rounded-xl shadow-md flex items-center gap-1.5 transition-all">
+              <i class="fa-solid fa-envelope"></i> Email Login / Face ID
+            </button>
+          </div>
+
+          <!-- Authenticated State -->
+          <div id="headerAuthUser" class="hidden flex items-center gap-2.5 bg-brand-cardBg px-3 py-1 rounded-xl border border-brand-border">
+            <img id="headerUserAvatar" src="" class="w-7 h-7 rounded-full border border-brand-500/40 object-cover" alt="User Avatar"/>
+            <div class="text-left leading-tight">
+              <div class="flex items-center gap-1.5">
+                <span id="headerUserName" class="text-xs font-semibold text-slate-800">User</span>
+                <span id="headerUserFaceBadge" class="w-2 h-2 rounded-full bg-brand-500" title="Face ID Enrolled"></span>
+              </div>
+              <span id="headerUserRole" class="text-[10px] font-mono text-slate-500">Executive</span>
+            </div>
+            <button onclick="faceAuth.logout()" class="text-slate-400 hover:text-red-400 text-xs ml-1 transition-colors" title="Logout">
+              <i class="fa-solid fa-right-from-bracket"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Dark / Light Mode Toggle -->
+        <button id="themeToggleBtn" onclick="toggleTheme()" class="theme-toggle-btn" title="Switch dark / light mode" aria-label="Toggle dark and light mode">
+          <span id="themeToggleKnob" class="theme-toggle-knob">
+            <i id="themeToggleIcon" class="fa-solid fa-sun"></i>
+          </span>
+        </button>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- ========================================================================
+       MAIN APP CONTAINER
+       ======================================================================== -->
+  <main class="max-w-7xl mx-auto px-4 lg:px-8 pt-6">
+
+    <!-- ----------------------------------------------------------------------
+         TAB 1: LIVE STUDIO
+         ---------------------------------------------------------------------- -->
+    <div id="tabStudioView" class="tab-content space-y-6">
+
+      <!-- Top Action Bar -->
+      <div class="flex flex-wrap items-center justify-between gap-4 glass-panel p-4 rounded-2xl">
+        <div class="flex items-center gap-3 flex-wrap">
+          <button id="btnStartCam" onclick="triggerCalibrationProcess()" disabled class="px-5 py-2.5 bg-brand-500 hover:bg-brand-400 text-white font-display font-semibold text-sm rounded-xl transition-all flex items-center gap-2 shadow-lg shadow-brand-500/25 disabled:opacity-50 disabled:cursor-not-allowed">
+            <i class="fa-solid fa-play"></i> Start Live Studio
+          </button>
+          <button id="btnStopCam" onclick="stopCameraStudio()" disabled class="px-4 py-2.5 bg-slate-200 hover:bg-slate-300 text-slate-600 font-display font-semibold text-sm rounded-xl border border-slate-300 transition-all flex items-center gap-2 disabled:opacity-40">
+            <i class="fa-solid fa-stop"></i> Stop Camera
+          </button>
+          <button id="btnToggleAudio" onclick="toggleAudioEngine()" class="px-4 py-2.5 bg-brand-cardBg hover:bg-brand-border text-brand-400 font-mono text-xs rounded-xl border border-brand-border transition-all flex items-center gap-2">
+            <i class="fa-solid fa-microphone"></i> Audio Analysis: <span id="audioEngineStateText" class="text-amber-400 font-bold">OFF</span>
+          </button>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <button onclick="openExportReportModal()" class="px-3.5 py-2 bg-brand-cardBg hover:bg-brand-border text-brand-400 border border-brand-border rounded-xl text-xs font-mono flex items-center gap-2">
+            <i class="fa-solid fa-file-pdf text-red-400"></i> PDF Report
+          </button>
+          <button onclick="openSocialCardModal()" class="px-3.5 py-2 bg-brand-cardBg hover:bg-brand-border text-brand-400 border border-brand-border rounded-xl text-xs font-mono flex items-center gap-2">
+            <i class="fa-solid fa-share-nodes text-brand-accent"></i> Share Card
+          </button>
+        </div>
+      </div>
+
+      <!-- Studio Grid -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+        <!-- Left Video Feed Section (7 Cols) -->
+        <div class="lg:col-span-7 space-y-4">
+          
+          <div class="glass-panel p-4 rounded-2xl relative overflow-hidden">
+            <div class="flex items-center justify-between mb-3 font-mono text-xs text-slate-500">
+              <span class="flex items-center gap-2">
+                <i class="fa-solid fa-circle-dot text-brand-400 animate-pulse"></i> LIVE CAMERA FEED [640x480]
+              </span>
+              <span id="fpsCounter" class="text-brand-accent font-semibold">0 FPS</span>
+            </div>
+
+            <!-- Video Container (Clean & Grand, No Obtrusive Dialogues) -->
+            <div id="camFrame" class="relative rounded-xl overflow-hidden bg-black aspect-4/3 border border-brand-border group">
+              <video id="videoElement" class="w-full h-full object-cover scale-x-[-1]" autoplay muted playsinline></video>
+              <canvas id="overlayCanvas" class="absolute inset-0 w-full h-full scale-x-[-1] pointer-events-none"></canvas>
+              
+              <!-- HUD Target Reticles -->
+              <div class="hud-corner-tl"></div>
+              <div class="hud-corner-tr"></div>
+              <div class="hud-corner-bl"></div>
+              <div class="hud-corner-br"></div>
+
+              <!-- Scanning Beam -->
+              <div id="scanBeam" class="scan-beam hidden"></div>
+
+              <!-- Environmental Badges -->
+              <div class="absolute top-3 left-3 flex flex-col gap-1.5 z-20 pointer-events-none">
+                <div id="badgeLighting" class="bg-black/75 backdrop-blur px-2.5 py-1 rounded-md border border-gray-700 text-[11px] font-mono text-gray-300 flex items-center gap-1.5">
+                  <i class="fa-solid fa-sun text-amber-400"></i> Lighting: <span class="font-bold text-white">--</span>
+                </div>
+                <div id="badgePosture" class="bg-black/75 backdrop-blur px-2.5 py-1 rounded-md border border-gray-700 text-[11px] font-mono text-gray-300 flex items-center gap-1.5">
+                  <i class="fa-solid fa-user text-brand-400"></i> Posture: <span class="font-bold text-white">--</span>
+                </div>
+              </div>
+
+              <div class="absolute top-3 right-3 flex flex-col gap-1.5 z-20 pointer-events-none text-right">
+                <div id="badgeStability" class="bg-black/75 backdrop-blur px-2.5 py-1 rounded-md border border-gray-700 text-[11px] font-mono text-gray-300 flex items-center gap-1.5 justify-end">
+                  <i class="fa-solid fa-crosshairs text-brand-500"></i> Stability: <span class="font-bold text-white">100%</span>
+                </div>
+                <div id="badgeEyeTimer" class="bg-black/75 backdrop-blur px-2.5 py-1 rounded-md border border-gray-700 text-[11px] font-mono text-gray-300 flex items-center gap-1.5 justify-end">
+                  <i class="fa-solid fa-eye text-cyan-400"></i> Eye Contact: <span class="font-bold text-white">0%</span>
+                </div>
+              </div>
+
+              <!-- Posture Warning Toast -->
+              <div id="postureWarningBanner" class="absolute bottom-3 left-3 right-3 bg-red-900/90 text-red-200 border border-red-500/40 backdrop-blur px-4 py-2 rounded-xl text-xs font-mono flex items-center justify-between opacity-0 transition-all pointer-events-none">
+                <span class="flex items-center gap-2">
+                  <i class="fa-solid fa-triangle-exclamation text-amber-400 text-sm"></i> 
+                  <span id="postureWarningText">Posture Alert: Head Tilted</span>
+                </span>
+                <span class="text-[10px] bg-red-950 px-2 py-0.5 rounded border border-red-700">CORRECT POSITION</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Acoustic Processor Bar -->
+          <div class="glass-panel p-4 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div class="flex items-center gap-3 w-full sm:w-auto">
+              <div class="w-9 h-9 rounded-lg bg-brand-500/10 border border-brand-500/30 flex items-center justify-center text-brand-400">
+                <i class="fa-solid fa-microphone-lines"></i>
+              </div>
+              <div>
+                <div class="text-xs font-mono text-slate-500">Acoustic Audio Processor</div>
+                <div class="text-sm font-semibold text-slate-800 flex items-center gap-2">
+                  Voice Confidence Score: <span id="valVoiceScore" class="text-brand-accent font-mono font-bold">--</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="flex items-center gap-4 text-xs font-mono w-full sm:w-auto justify-between sm:justify-end border-t sm:border-t-0 border-brand-border pt-3 sm:pt-0">
+              <div class="text-center sm:text-right">
+                <div class="text-slate-500"><i class="fa-solid fa-wave-square text-purple-400 mr-1"></i> Vocal Pitch</div>
+                <div id="valPitchVariation" class="text-slate-800 font-bold">-- Hz</div>
+              </div>
+              <div class="text-center sm:text-right pl-4 border-l border-brand-border">
+                <div class="text-slate-500">Speaking Pace</div>
+                <div id="valSpeechPace" class="text-slate-800 font-bold">-- wpm</div>
+              </div>
+              <div class="text-center sm:text-right pl-4 border-l border-brand-border">
+                <div class="text-slate-500">Fillers Count</div>
+                <div id="valFillerCount" class="text-amber-400 font-bold">0 detect</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Micro-Expression Analytics -->
+          <div class="glass-panel p-4 rounded-2xl">
+             <div class="flex items-center justify-between mb-3 text-xs font-mono text-slate-500">
+                <span><i class="fa-solid fa-masks-theater text-brand-400 mr-1"></i> Micro-Expression Analytics</span>
+                <span class="text-[10px] bg-brand-darkBg px-2 py-0.5 rounded border border-brand-border text-brand-accent">AI VISION LAB</span>
+             </div>
+             <div class="grid grid-cols-3 gap-3">
+                <div class="bg-brand-darkBg border border-brand-border rounded-xl p-3 flex flex-col items-center text-center">
+                   <div class="text-xs font-mono text-slate-500 mb-1">Focus / Intent</div>
+                   <div class="w-full bg-slate-200 rounded-full h-1.5 mb-1 overflow-hidden">
+                      <div id="barMicroFocus" class="h-full bg-brand-500 progress-bar-fill" style="width: 0%"></div>
+                   </div>
+                   <div id="valMicroFocus" class="text-sm font-bold text-slate-800">0%</div>
+                </div>
+                <div class="bg-brand-darkBg border border-brand-border rounded-xl p-3 flex flex-col items-center text-center">
+                   <div class="text-xs font-mono text-slate-500 mb-1">Surprise / Energy</div>
+                   <div class="w-full bg-slate-200 rounded-full h-1.5 mb-1 overflow-hidden">
+                      <div id="barMicroSurprise" class="h-full bg-amber-400 progress-bar-fill" style="width: 0%"></div>
+                   </div>
+                   <div id="valMicroSurprise" class="text-sm font-bold text-slate-800">0%</div>
+                </div>
+                <div class="bg-brand-darkBg border border-brand-border rounded-xl p-3 flex flex-col items-center text-center">
+                   <div class="text-xs font-mono text-slate-500 mb-1">Micro-Stress</div>
+                   <div class="w-full bg-slate-200 rounded-full h-1.5 mb-1 overflow-hidden">
+                      <div id="barMicroStress" class="h-full bg-red-400 progress-bar-fill" style="width: 0%"></div>
+                   </div>
+                   <div id="valMicroStress" class="text-sm font-bold text-slate-800">0%</div>
+                </div>
+             </div>
+          </div>
+
+        </div>
+
+        <!-- Right Diagnostic Metrics (5 Cols) -->
+        <div class="lg:col-span-5 space-y-4">
+          
+          <!-- Big Arc Gauge Card -->
+          <div class="glass-panel p-6 rounded-2xl flex flex-col items-center text-center relative overflow-hidden">
+            <div class="font-mono text-xs text-slate-500 uppercase tracking-wider mb-2">Overall Impression Vector</div>
+            
+            <!-- Circular Arc Gauge -->
+            <div class="relative w-44 h-44 flex items-center justify-center my-2">
+              <svg class="w-full h-full transform -rotate-90" viewBox="0 0 140 140">
+                <circle cx="70" cy="70" r="58" class="stroke-slate-200 dark:stroke-slate-800" stroke-width="12" fill="none"/>
+                <circle id="gaugeFillRing" cx="70" cy="70" r="58" class="stroke-brand-500 gauge-ring" stroke-width="12" stroke-linecap="round" fill="none" stroke-dasharray="364.4" stroke-dashoffset="364.4"/>
+              </svg>
+              <div class="absolute flex flex-col items-center">
+                <span id="scoreNumMain" class="font-display font-extrabold text-4xl text-slate-800">--</span>
+                <span class="text-[10px] font-mono text-slate-500">AI INDEX / 100</span>
+              </div>
+            </div>
+
+            <!-- Score Badge & Tag -->
+            <div class="mt-2">
+              <span id="scoreTagBadge" class="inline-block px-3 py-1 rounded-full text-[10px] font-mono font-bold tracking-wider bg-slate-200 text-slate-600 border border-slate-300">
+                STANDBY MODE
+              </span>
+              <h3 id="scoreTitleText" class="font-display font-bold text-lg text-slate-800 mt-1">Calibrated Baseline</h3>
+              <p id="scoreDescText" class="text-xs text-slate-500 max-w-xs mt-1">Camera and diagnostic vectors are ready to track impression parameters.</p>
+            </div>
+
+            <!-- Manual Log Button -->
+            <button onclick="manuallySaveSession()" class="mt-4 px-4 py-2 bg-brand-cardBg hover:bg-brand-border text-brand-400 font-mono text-xs rounded-xl border border-brand-border transition-all flex items-center gap-2">
+              <i class="fa-solid fa-bookmark"></i> Save Snapshot to History
+            </button>
+          </div>
+
+          <!-- Sub-Metric Progress Cards -->
+          <div class="glass-panel p-5 rounded-2xl space-y-4">
+            <h4 class="font-display font-semibold text-sm text-slate-800 flex items-center gap-2">
+              <i class="fa-solid fa-chart-simple text-brand-400"></i> Core Impression Breakdown
+            </h4>
+
+            <div class="space-y-3 font-mono text-xs">
+              <!-- Smile Warmth -->
+              <div>
+                <div class="flex justify-between text-slate-600 mb-1">
+                  <span><i class="fa-solid fa-face-smile text-amber-400 mr-1"></i> Smile Warmth</span>
+                  <span id="valSmile" class="font-bold text-slate-800">0%</span>
+                </div>
+                <div class="w-full bg-slate-200 rounded-full h-2 overflow-hidden">
+                  <div id="barSmile" class="h-full bg-amber-400 progress-bar-fill" style="width: 0%"></div>
+                </div>
+              </div>
+
+              <!-- Eye Contact -->
+              <div>
+                <div class="flex justify-between text-slate-600 mb-1">
+                  <span><i class="fa-solid fa-eye text-cyan-400 mr-1"></i> Direct Eye Contact</span>
+                  <span id="valEye" class="font-bold text-slate-800">0%</span>
+                </div>
+                <div class="w-full bg-slate-200 rounded-full h-2 overflow-hidden">
+                  <div id="barEye" class="h-full bg-cyan-400 progress-bar-fill" style="width: 0%"></div>
+                </div>
+              </div>
+
+              <!-- Composure -->
+              <div>
+                <div class="flex justify-between text-slate-600 mb-1">
+                  <span><i class="fa-solid fa-shield-halved text-brand-500 mr-1"></i> Composure / Calmness</span>
+                  <span id="valComposure" class="font-bold text-slate-800">0%</span>
+                </div>
+                <div class="w-full bg-slate-200 rounded-full h-2 overflow-hidden">
+                  <div id="barComposure" class="h-full bg-brand-500 progress-bar-fill" style="width: 0%"></div>
+                </div>
+              </div>
+
+              <!-- Posture -->
+              <div>
+                <div class="flex justify-between text-slate-600 mb-1">
+                  <span><i class="fa-solid fa-anchor text-brand-accent mr-1"></i> Posture Centering</span>
+                  <span id="valPosture" class="font-bold text-slate-800">0%</span>
+                </div>
+                <div class="w-full bg-slate-200 rounded-full h-2 overflow-hidden">
+                  <div id="barPosture" class="h-full bg-brand-accent progress-bar-fill" style="width: 0%"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Dynamic AI Advisor Coaching Card -->
+          <div id="aiCoachingCard" class="bg-brand-cardBg border border-brand-border p-4 rounded-2xl flex items-start gap-3 transition-colors duration-500">
+            <div class="w-8 h-8 rounded-lg bg-brand-500/10 border border-brand-500/30 flex items-center justify-center text-brand-400 shrink-0">
+              <i class="fa-solid fa-lightbulb"></i>
+            </div>
+            <div class="text-xs">
+              <div class="font-semibold text-slate-800 mb-0.5">Real-time Coaching Tip</div>
+              <p id="coachingTipText" class="text-slate-500 leading-relaxed">
+                Position your camera at eye level and keep your chin level for an immediate executive presence boost.
+              </p>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- ----------------------------------------------------------------------
+         TAB 2: AI INTERVIEW SIMULATOR
+         ---------------------------------------------------------------------- -->
+    <div id="tabInterviewView" class="tab-content hidden space-y-6">
+      <div class="glass-panel p-6 rounded-2xl max-w-3xl mx-auto space-y-6">
+        
+        <div class="border-b border-brand-border pb-4 flex items-center justify-between">
+          <div>
+            <h2 class="font-display font-bold text-2xl text-slate-800 flex items-center gap-2">
+              <i class="fa-solid fa-user-tie text-brand-accent"></i> Behavioral Interview Simulator
+            </h2>
+            <p class="text-xs text-slate-500 mt-1">Answer questions while the AI records your poise, vocal energy, and facial composure.</p>
+          </div>
+          <div class="bg-brand-cardBg px-3 py-1.5 rounded-xl border border-brand-border font-mono text-xs">
+            Question <span id="currentQIndex" class="font-bold text-brand-accent">1</span> of 5
+          </div>
+        </div>
+
+        <!-- Question Prompter Card -->
+        <div class="bg-brand-cardBg border border-brand-border p-5 rounded-xl space-y-3">
+          <div class="flex items-center gap-2 font-mono text-[11px] text-brand-400">
+            <i class="fa-solid fa-circle-question"></i>
+            <span id="questionCategory" class="bg-brand-500/10 px-2 py-0.5 rounded border border-brand-500/30">BEHAVIORAL</span>
+          </div>
+          <h3 id="currentQuestionText" class="font-display font-semibold text-lg text-slate-800 leading-snug">
+            "Tell me about a challenging situation where you had to lead a project under tight deadlines. How did you maintain composure?"
+          </h3>
+        </div>
+
+        <!-- Timer & Controls -->
+        <div class="flex flex-col sm:flex-row items-center justify-between gap-4 bg-brand-darkBg p-4 rounded-xl border border-brand-border">
+          <div class="flex items-center gap-4">
+            <div class="relative w-14 h-14 flex items-center justify-center font-mono font-bold text-lg text-brand-accent">
+              <svg class="w-full h-full transform -rotate-90" viewBox="0 0 60 60">
+                <circle cx="30" cy="30" r="24" class="stroke-slate-200 dark:stroke-slate-800" stroke-width="5" fill="none"/>
+                <circle id="interviewTimerRing" cx="30" cy="30" r="24" class="stroke-brand-accent transition-all duration-1000 linear" stroke-width="5" stroke-linecap="round" fill="none" stroke-dasharray="150.7" stroke-dashoffset="0"/>
+              </svg>
+              <span id="interviewSecondsText">30</span>
+            </div>
+            <div>
+              <div class="text-sm font-semibold text-slate-800" id="interviewStateLabel">Ready to Answer</div>
+              <div class="text-xs text-slate-500">Maintain eye contact and steady tone</div>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-3">
+            <button id="btnStartInterview" onclick="startInterviewSession()" class="px-5 py-2.5 bg-brand-500 hover:bg-brand-400 text-white font-display font-bold text-sm rounded-xl transition-all shadow-md">
+              <i class="fa-solid fa-microphone mr-1.5"></i> Begin 30s Answer
+            </button>
+            <button onclick="nextInterviewQuestion()" class="px-4 py-2.5 bg-slate-200 hover:bg-slate-300 text-slate-600 font-display font-semibold text-sm rounded-xl border border-slate-300 transition-colors">
+              Next Question <i class="fa-solid fa-arrow-right ml-1"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Interview Session Feedback Summary -->
+        <div id="interviewResultsPanel" class="hidden bg-brand-cardBg border border-brand-border p-5 rounded-xl space-y-4">
+          <div class="flex items-center justify-between">
+            <h4 class="font-display font-bold text-base text-slate-800 flex items-center gap-2">
+              <i class="fa-solid fa-square-poll-vertical text-brand-accent"></i> Response Assessment Summary
+            </h4>
+            <span id="interviewReadinessScore" class="font-display font-bold text-brand-accent text-sm">--/100</span>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 font-mono text-xs">
+            <div class="bg-brand-darkBg p-3 rounded-lg border border-brand-border">
+              <span class="text-slate-500">Facial Composure:</span>
+              <div id="intResFacial" class="text-sm font-bold text-slate-800 mt-1">--</div>
+            </div>
+            <div class="bg-brand-darkBg p-3 rounded-lg border border-brand-border">
+              <span class="text-slate-500">Speech Fluency:</span>
+              <div id="intResSpeech" class="text-sm font-bold text-slate-800 mt-1">--</div>
+            </div>
+            <div class="bg-brand-darkBg p-3 rounded-lg border border-brand-border">
+              <span class="text-slate-500">Eye Contact Consistency:</span>
+              <div id="intResEye" class="text-sm font-bold text-slate-800 mt-1">--</div>
+            </div>
+          </div>
+          <p id="intResFeedbackText" class="text-xs text-slate-600 italic leading-relaxed">
+            --
+          </p>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ----------------------------------------------------------------------
+         TAB 3: PRACTICE MODE & AUTO PDF GENERATOR
+         ---------------------------------------------------------------------- -->
+    <div id="tabPracticeView" class="tab-content hidden space-y-6">
+      <div class="glass-panel p-6 rounded-2xl max-w-4xl mx-auto space-y-6">
+        
+        <div class="border-b border-brand-border pb-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div>
+            <h2 class="font-display font-bold text-2xl text-slate-800 flex items-center gap-2">
+              <i class="fa-solid fa-stopwatch text-brand-accent"></i> Timed Practice Session &amp; Auto PDF Generator
+            </h2>
+            <p class="text-xs text-slate-500 mt-1">
+              Set a timer duration, record continuous metrics during your speech, and automatically receive a PDF report.
+            </p>
+          </div>
+          <div id="pracRecordingBadge" class="hidden flex items-center gap-2 bg-red-950/80 border border-red-500/50 px-3.5 py-1.5 rounded-full text-xs font-mono text-red-300 animate-pulse">
+            <span class="w-2.5 h-2.5 rounded-full bg-red-500"></span> REC: Session In Progress
+          </div>
+        </div>
+
+        <!-- Configuration Bar -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 bg-brand-cardBg p-4 rounded-xl border border-brand-border font-mono text-xs">
+          <div>
+            <label class="block text-slate-500 mb-1">Candidate Name:</label>
+            <input id="practiceCandidateName" type="text" value="Executive Candidate" class="w-full bg-brand-darkBg border border-brand-border px-3 py-2 rounded-lg text-slate-800 outline-none focus:border-brand-400 transition-colors"/>
+          </div>
+          <div>
+            <label class="block text-slate-500 mb-1">Session Duration:</label>
+            <select id="practiceTimerSelect" class="w-full bg-brand-darkBg border border-brand-border px-3 py-2 rounded-lg text-slate-800 outline-none focus:border-brand-400 transition-colors">
+              <option value="30">30 Seconds (Quick Check)</option>
+              <option value="60" selected>1 Minute (Elevator Pitch)</option>
+              <option value="120">2 Minutes (Presentation)</option>
+              <option value="180">3 Minutes (Executive Speech)</option>
+            </select>
+          </div>
+          <div class="flex items-end">
+            <button id="btnStartPracticeSession" onclick="startTimedPracticeSession()" class="w-full py-2 bg-brand-500 hover:bg-brand-400 text-white font-display font-bold text-sm rounded-lg transition-all shadow-md flex items-center justify-center gap-2">
+              <i class="fa-solid fa-play"></i> Start Timed Session
+            </button>
+            <button id="btnStopPracticeSession" onclick="finishPracticeSession(true)" class="hidden w-full py-2 bg-red-600 hover:bg-red-500 text-white font-display font-bold text-sm rounded-lg transition-all shadow-md flex items-center justify-center gap-2">
+              <i class="fa-solid fa-file-pdf"></i> Stop &amp; Generate PDF Now
+            </button>
+          </div>
+        </div>
+
+        <!-- Auto-PDF & Download Settings -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-brand-cardBg p-4 rounded-xl border border-brand-border font-mono text-xs">
+          <div class="flex items-center justify-between gap-3 bg-brand-darkBg border border-brand-border rounded-lg px-3 py-2.5">
+            <div>
+              <div class="text-slate-800 font-semibold">Auto PDF Generator</div>
+              <div id="autoPdfHelperText" class="text-slate-500 text-[11px] mt-0.5">ON — PDF auto-downloads when timer hits 0</div>
+            </div>
+            <button id="btnToggleAutoPdf" onclick="toggleAutoPdfGenerator()" role="switch" aria-checked="true" class="shrink-0 w-11 h-6 rounded-full bg-brand-500 relative transition-colors">
+              <span id="autoPdfToggleKnob" class="absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform translate-x-5"></span>
+            </button>
+          </div>
+          <div class="flex items-center justify-between gap-3 bg-brand-darkBg border border-brand-border rounded-lg px-3 py-2.5">
+            <div class="min-w-0">
+              <div class="text-slate-800 font-semibold">Download Folder</div>
+              <div id="downloadFolderText" class="text-slate-500 text-[11px] mt-0.5 truncate">Default (browser Downloads)</div>
+            </div>
+            <button onclick="chooseDownloadFolder()" class="shrink-0 px-3 py-1.5 bg-brand-500 hover:bg-brand-400 text-white font-semibold rounded-lg transition-colors flex items-center gap-1.5">
+              <i class="fa-solid fa-folder-open"></i> Choose
+            </button>
+          </div>
+        </div>
+
+        <!-- Timer & Visual Progress Display -->
+        <div class="bg-brand-darkBg border border-brand-border p-6 rounded-xl space-y-4">
+          <div class="flex items-center justify-between">
+            <div class="space-y-1">
+              <span class="text-[10px] font-mono uppercase tracking-widest text-brand-400">PRACTICE COUNTDOWN</span>
+              <div id="practiceCountdownDisplay" class="font-display font-extrabold text-5xl text-slate-800">01:00</div>
+            </div>
+            <div class="text-right font-mono text-xs text-slate-500">
+              <div>Sample Buffer: <span id="sampleCountDisplay" class="text-brand-accent font-bold">0</span> samples</div>
+              <div id="practiceStatusText" class="text-slate-500 mt-1">Ready to start session</div>
+            </div>
+          </div>
+          <div class="w-full bg-slate-200 rounded-full h-3 overflow-hidden">
+            <div id="practiceProgressBar" class="bg-gradient-to-r from-brand-500 to-brand-accent h-full w-0 transition-all duration-300"></div>
+          </div>
+        </div>
+
+        <!-- Live Snapshot & Diagnostic Panel -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
+          <div class="relative bg-black aspect-4/3 rounded-xl overflow-hidden border border-brand-border flex items-center justify-center">
+            <img id="practiceSnapshotImg" class="w-full h-full object-cover hidden" alt="Freeze Frame"/>
+            <div id="practicePlaceholder" class="text-center p-6 text-slate-400 font-mono text-xs space-y-2">
+              <i class="fa-solid fa-stopwatch text-3xl text-gray-600 mb-2"></i>
+              <div>TIMED PRACTICE IDLE</div>
+              <p class="text-[10px]">Start timer above to begin live recording</p>
+            </div>
+          </div>
+
+          <div class="space-y-4">
+            <div id="practiceAnalysisCard" class="bg-brand-cardBg border border-brand-border p-4 rounded-xl space-y-3 font-mono text-xs">
+              <div class="flex items-center justify-between border-b border-brand-border pb-2">
+                <span class="text-slate-500">Aggregated Session Score</span>
+                <span id="pracScoreVal" class="font-display font-bold text-lg text-brand-accent">--</span>
+              </div>
+              <div class="space-y-2 text-slate-600">
+                <div class="flex justify-between"><span>Avg Warmth Smile:</span> <span id="pracExpr" class="text-amber-400 font-bold">--</span></div>
+                <div class="flex justify-between"><span>Avg Eye Contact:</span> <span id="pracGaze" class="text-cyan-400 font-bold">--</span></div>
+                <div class="flex justify-between"><span>Avg Composure:</span> <span id="pracComposure" class="text-brand-500 font-bold">--</span></div>
+                <div class="flex justify-between"><span>Avg Vocal Energy:</span> <span id="pracVoice" class="text-purple-400 font-bold">--</span></div>
+                <div class="flex justify-between border-t border-brand-border/60 pt-1.5"><span>Post-Session Action:</span> <span id="pracAutoPdfStatus" class="text-slate-500">PDF auto-downloads when timer hits 0</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ----------------------------------------------------------------------
+         TAB 4: 2-MEMBER CHALLENGE ARENA (NEW & COMPLETELY FIXED)
+         ---------------------------------------------------------------------- -->
+    <div id="tabChallengeView" class="tab-content hidden space-y-6">
+      
+      <!-- Challenge Arena Header Banner -->
+      <div class="glass-panel p-6 rounded-2xl flex flex-col md:flex-row items-center justify-between gap-4">
+        <div>
+          <div class="flex items-center gap-2 font-mono text-xs text-amber-500 font-semibold mb-1">
+            <i class="fa-solid fa-gamepad"></i> 1v1 HEAD-TO-HEAD DUEL
+          </div>
+          <h2 class="font-display font-bold text-2xl text-slate-800">
+            2-Member Executive <span class="text-brand-accent">Challenge Arena</span>
+          </h2>
+          <p class="text-xs text-slate-500 mt-1 max-w-xl">
+            Compete head-to-head against another candidate or team member! Compare smile warmth, laser eye contact, unshakeable composure, and vocal confidence in real-time.
+          </p>
+        </div>
+
+        <!-- Duel Mode Selector (Local vs Online Room) -->
+        <div class="flex items-center gap-1 bg-brand-cardBg p-1.5 rounded-xl border border-brand-border text-xs font-semibold">
+          <button id="btnModeLocal" onclick="challengeArena.setDuelType('local')" class="px-4 py-2 rounded-lg bg-brand-600 text-white shadow-sm transition-all flex items-center gap-1.5">
+            <i class="fa-solid fa-users"></i> Local 2-Player
+          </button>
+          <button id="btnModeOnline" onclick="challengeArena.setDuelType('online')" class="px-4 py-2 rounded-lg text-slate-500 hover:text-slate-800 transition-all flex items-center gap-1.5">
+            <i class="fa-solid fa-satellite-dish"></i> Online Room
+          </button>
+        </div>
+      </div>
+
+      <!-- Mode A Configuration: Local 2-Player Duel -->
+      <div id="duelConfigLocal" class="glass-panel p-5 rounded-2xl space-y-4">
+        <div class="flex items-center justify-between border-b border-brand-border pb-3">
+          <h3 class="font-display font-semibold text-sm text-slate-800 flex items-center gap-2">
+            <i class="fa-solid fa-sliders text-brand-400"></i> Local Match Setup
+          </h3>
+          <span class="text-[11px] font-mono text-slate-500">Same Device / Split Rounds</span>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 font-mono text-xs">
+          <div>
+            <label class="block text-slate-500 mb-1">Player 1 Name (Host):</label>
+            <input id="localP1NameInput" type="text" value="Player 1" class="w-full bg-brand-darkBg border border-brand-border px-3 py-2 rounded-lg text-slate-800 outline-none focus:border-brand-400 transition-colors"/>
+          </div>
+          <div>
+            <label class="block text-slate-500 mb-1">Player 2 Name (Challenger):</label>
+            <input id="localP2NameInput" type="text" value="Challenger" class="w-full bg-brand-darkBg border border-brand-border px-3 py-2 rounded-lg text-slate-800 outline-none focus:border-brand-400 transition-colors"/>
+          </div>
+          <div>
+            <label class="block text-slate-500 mb-1">Round Duration:</label>
+            <select id="localDuelDurationSelect" class="w-full bg-brand-darkBg border border-brand-border px-3 py-2 rounded-lg text-slate-800 outline-none focus:border-brand-400 transition-colors">
+              <option value="30" selected>30 Seconds Duel</option>
+              <option value="45">45 Seconds Duel</option>
+              <option value="60">60 Seconds Duel</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="flex items-center justify-end gap-3 pt-2">
+          <button id="btnStartLocalDuel" onclick="challengeArena.startLocalDuel()" class="px-6 py-2.5 bg-gradient-to-r from-brand-600 to-brand-accent hover:opacity-95 text-white font-display font-bold text-sm rounded-xl shadow-lg shadow-brand-500/25 flex items-center gap-2 transition-all">
+            <i class="fa-solid fa-play"></i> Start 2-Member Duel
+          </button>
+          <button id="btnStopLocalDuel" onclick="challengeArena.finishDuel()" class="hidden px-5 py-2.5 bg-red-600 hover:bg-red-500 text-white font-display font-bold text-sm rounded-xl shadow-md flex items-center gap-2 transition-all">
+            <i class="fa-solid fa-stop"></i> End Duel Now
+          </button>
+        </div>
+      </div>
+
+      <!-- Mode B Configuration: Online Room Duel (WebSocket) -->
+      <div id="duelConfigOnline" class="hidden glass-panel p-5 rounded-2xl space-y-4">
+        <div class="flex items-center justify-between border-b border-brand-border pb-3">
+          <h3 class="font-display font-semibold text-sm text-slate-800 flex items-center gap-2">
+            <i class="fa-solid fa-network-wired text-brand-accent"></i> Online Multiplayer Room Duel
+          </h3>
+          <span class="text-[11px] font-mono text-slate-500">Live WebSocket Sync</span>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 font-mono text-xs">
+          <div class="space-y-2">
+            <label class="block text-slate-500">Enter or Create Room Code:</label>
+            <div class="flex items-center gap-2">
+              <input id="onlineRoomCodeInput" type="text" placeholder="e.g. DUEL-1049" class="w-full bg-brand-darkBg border border-brand-border px-3 py-2 rounded-lg text-slate-800 outline-none focus:border-brand-400 transition-colors uppercase font-bold"/>
+              <button onclick="challengeArena.createOnlineRoom()" class="shrink-0 px-4 py-2 bg-brand-500 hover:bg-brand-400 text-white font-bold rounded-lg transition-colors">
+                Create Room
+              </button>
+            </div>
+          </div>
+          <div class="flex flex-col justify-end">
+            <div class="flex items-center gap-2">
+              <button onclick="challengeArena.joinOnlineRoom()" class="w-full py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold rounded-lg transition-colors">
+                Join Room Code
+              </button>
+              <button id="btnStartOnlineDuel" onclick="challengeArena.startOnlineDuel()" disabled class="w-full py-2 bg-brand-600 hover:bg-brand-500 disabled:opacity-50 text-white font-bold rounded-lg transition-colors">
+                Launch Duel!
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div id="onlineRoomStatusText" class="text-xs font-mono text-slate-500 italic">
+          Ready to connect to duel room.
+        </div>
+      </div>
+
+      <!-- LIVE 1v1 DUEL HUD DISPLAY -->
+      <div class="glass-panel p-6 rounded-2xl space-y-6 relative overflow-hidden">
+        
+        <!-- Live Countdown & Turn Banner -->
+        <div id="duelActiveBanner" class="hidden flex items-center justify-between bg-brand-darkBg p-3.5 rounded-xl border border-brand-border font-mono text-xs">
+          <div class="flex items-center gap-2.5">
+            <span class="w-3 h-3 rounded-full bg-red-500 animate-pulse"></span>
+            <span id="duelActiveTurnText" class="font-bold text-slate-800">Duel In Progress</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="text-slate-500">TIME REMAINING:</span>
+            <span id="duelTimerNum" class="font-display font-extrabold text-lg text-brand-accent">00:30</span>
+          </div>
+        </div>
+
+        <!-- 2 Players Split Head-to-Head Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-11 gap-4 items-center">
+          
+          <!-- Player 1 Card (5 cols) -->
+          <div class="md:col-span-5 bg-brand-cardBg border border-brand-500/30 rounded-2xl p-5 space-y-4 relative">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-3">
+                <img id="duelP1Avatar" src="https://api.dicebear.com/7.x/bottts/svg?seed=p1" class="w-12 h-12 rounded-full border-2 border-brand-500 object-cover bg-brand-darkBg" alt="Player 1"/>
+                <div>
+                  <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-brand-500/20 text-brand-600 font-bold">PLAYER 1</span>
+                  <h4 id="duelP1Name" class="font-display font-bold text-base text-slate-800 mt-0.5">Player 1</h4>
+                </div>
+              </div>
+              <div class="text-right font-mono">
+                <span class="text-[10px] text-slate-500">REALTIME SCORE</span>
+                <div id="duelP1Score" class="font-display font-extrabold text-3xl text-brand-500">0 PTS</div>
+              </div>
+            </div>
+
+            <!-- Player 1 Metric Grid -->
+            <div class="grid grid-cols-2 gap-2 text-xs font-mono">
+              <div class="bg-brand-darkBg p-2 rounded-lg border border-brand-border flex justify-between">
+                <span class="text-slate-500">Smile:</span> <span id="duelP1Smile" class="font-bold text-amber-400">0%</span>
+              </div>
+              <div class="bg-brand-darkBg p-2 rounded-lg border border-brand-border flex justify-between">
+                <span class="text-slate-500">Eye Contact:</span> <span id="duelP1Eye" class="font-bold text-cyan-400">0%</span>
+              </div>
+              <div class="bg-brand-darkBg p-2 rounded-lg border border-brand-border flex justify-between">
+                <span class="text-slate-500">Composure:</span> <span id="duelP1Composure" class="font-bold text-brand-500">0%</span>
+              </div>
+              <div class="bg-brand-darkBg p-2 rounded-lg border border-brand-border flex justify-between">
+                <span class="text-slate-500">Vocal Power:</span> <span id="duelP1Voice" class="font-bold text-purple-400">0%</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Center VS Badge (1 col) -->
+          <div class="md:col-span-1 flex flex-col items-center justify-center py-2">
+            <div class="duel-vs-badge">VS</div>
+          </div>
+
+          <!-- Player 2 Card (5 cols) -->
+          <div class="md:col-span-5 bg-brand-cardBg border border-brand-accent/30 rounded-2xl p-5 space-y-4 relative">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-3">
+                <img id="duelP2Avatar" src="https://api.dicebear.com/7.x/bottts/svg?seed=p2" class="w-12 h-12 rounded-full border-2 border-brand-accent object-cover bg-brand-darkBg" alt="Player 2"/>
+                <div>
+                  <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-brand-accent/20 text-brand-accent font-bold">PLAYER 2</span>
+                  <h4 id="duelP2Name" class="font-display font-bold text-base text-slate-800 mt-0.5">Challenger</h4>
+                </div>
+              </div>
+              <div class="text-right font-mono">
+                <span class="text-[10px] text-slate-500">REALTIME SCORE</span>
+                <div id="duelP2Score" class="font-display font-extrabold text-3xl text-brand-accent">0 PTS</div>
+              </div>
+            </div>
+
+            <!-- Player 2 Metric Grid -->
+            <div class="grid grid-cols-2 gap-2 text-xs font-mono">
+              <div class="bg-brand-darkBg p-2 rounded-lg border border-brand-border flex justify-between">
+                <span class="text-slate-500">Smile:</span> <span id="duelP2Smile" class="font-bold text-amber-400">0%</span>
+              </div>
+              <div class="bg-brand-darkBg p-2 rounded-lg border border-brand-border flex justify-between">
+                <span class="text-slate-500">Eye Contact:</span> <span id="duelP2Eye" class="font-bold text-cyan-400">0%</span>
+              </div>
+              <div class="bg-brand-darkBg p-2 rounded-lg border border-brand-border flex justify-between">
+                <span class="text-slate-500">Composure:</span> <span id="duelP2Composure" class="font-bold text-brand-accent">0%</span>
+              </div>
+              <div class="bg-brand-darkBg p-2 rounded-lg border border-brand-border flex justify-between">
+                <span class="text-slate-500">Vocal Power:</span> <span id="duelP2Voice" class="font-bold text-purple-400">0%</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Dynamic Tug-of-War Score Lead Meter -->
+        <div class="space-y-2">
+          <div class="flex items-center justify-between text-xs font-mono">
+            <span class="text-brand-500 font-bold">Player 1 Dominance</span>
+            <div id="duelLeadText" class="font-bold text-slate-800">Scores Deadlocked</div>
+            <span class="text-brand-accent font-bold">Player 2 Dominance</span>
+          </div>
+          <div class="lead-meter-bar">
+            <div id="duelLeadBarP1" class="lead-segment-p1" style="width: 50%"></div>
+            <div id="duelLeadBarP2" class="lead-segment-p2" style="width: 50%"></div>
+          </div>
+        </div>
+
+        <!-- DUEL RESULTS & VICTORY MODAL PANEL -->
+        <div id="duelResultsPanel" class="hidden bg-gradient-to-r from-brand-cardBg to-brand-darkBg border border-brand-500/50 p-6 rounded-2xl text-center space-y-4 shadow-xl">
+          <div class="w-16 h-16 mx-auto rounded-full bg-amber-400/20 text-amber-400 flex items-center justify-center text-3xl animate-bounce">
+            <i class="fa-solid fa-crown"></i>
+          </div>
+          <div>
+            <h3 id="duelWinnerName" class="font-display font-extrabold text-2xl text-slate-800">PLAYER 1 WINS THE DUEL!</h3>
+            <p id="duelWinnerSub" class="text-xs text-slate-500 font-mono mt-1">Player 1 (88 pts) vs Player 2 (82 pts)</p>
+          </div>
+
+          <!-- Comparison Metrics Table -->
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 font-mono text-xs max-w-2xl mx-auto pt-2">
+            <div class="bg-brand-darkBg p-3 rounded-xl border border-brand-border">
+              <span class="text-slate-500 text-[10px]">WARMTH SMILE</span>
+              <div id="resSmileWinner" class="font-bold text-amber-400 mt-1">Player 1</div>
+            </div>
+            <div class="bg-brand-darkBg p-3 rounded-xl border border-brand-border">
+              <span class="text-slate-500 text-[10px]">EYE CONTACT</span>
+              <div id="resEyeWinner" class="font-bold text-cyan-400 mt-1">Player 1</div>
+            </div>
+            <div class="bg-brand-darkBg p-3 rounded-xl border border-brand-border">
+              <span class="text-slate-500 text-[10px]">COMPOSURE</span>
+              <div id="resCompWinner" class="font-bold text-brand-500 mt-1">Player 2</div>
+            </div>
+            <div class="bg-brand-darkBg p-3 rounded-xl border border-brand-border">
+              <span class="text-slate-500 text-[10px]">VOCAL POWER</span>
+              <div id="resVoiceWinner" class="font-bold text-purple-400 mt-1">Player 1</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- CHALLENGE MATCH HISTORY LOG -->
+      <div class="glass-panel p-5 rounded-2xl space-y-4">
+        <div class="flex items-center justify-between border-b border-brand-border pb-3">
+          <h3 class="font-display font-bold text-base text-slate-800 flex items-center gap-2">
+            <i class="fa-solid fa-clock-rotate-left text-brand-400"></i> Recent Challenge Matches
+          </h3>
+          <span class="font-mono text-[10px] text-slate-500">SAVED DUEL RECORDS</span>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-left font-mono text-xs">
+            <thead>
+              <tr class="border-b border-brand-border text-slate-500 uppercase text-[10px]">
+                <th class="py-2.5 px-3">Room</th>
+                <th class="py-2.5 px-3">Player 1</th>
+                <th class="py-2.5 px-3">Player 2</th>
+                <th class="py-2.5 px-3">Winner</th>
+                <th class="py-2.5 px-3">Date</th>
+              </tr>
+            </thead>
+            <tbody id="challengeHistoryBody" class="divide-y divide-brand-border text-slate-800">
+              <!-- Rendered via challenge.js -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ----------------------------------------------------------------------
+         TAB: FRIENDS & SOCIAL HUB (Followers, Following, Requests, Battles, Leaderboard)
+         ---------------------------------------------------------------------- -->
+    <div id="tabFriendsView" class="tab-content hidden space-y-6">
+
+      <!-- Top bar: search + pending requests count -->
+      <div class="glass-panel p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 rounded-2xl">
+        <div>
+          <h2 class="font-display font-bold text-xl text-slate-800 flex items-center gap-2">
+            <i class="fa-solid fa-users text-brand-500"></i> Friends &amp; Social Hub
+          </h2>
+          <p class="text-xs text-slate-500 mt-1">
+            Follow executive peers, accept &amp; reject connections, challenge friends to 1v1 duels, and dominate the leaderboard.
+          </p>
+        </div>
+        <div class="flex items-center gap-2">
+          <button onclick="window.friendsHub.switchSection('requests')" class="px-3.5 py-2 bg-brand-cardBg hover:bg-brand-border text-slate-700 dark:text-slate-300 border border-brand-border rounded-xl text-xs font-mono flex items-center gap-2 transition-all">
+            <i class="fa-solid fa-user-clock text-amber-500"></i> Requests
+            <span id="pendingReqCount" class="hidden px-1.5 py-0.5 rounded-full text-[9px] font-bold bg-red-500 text-white">0</span>
+          </button>
+          <button onclick="window.friendsHub.switchSection('battles')" class="px-3.5 py-2 bg-brand-cardBg hover:bg-brand-border text-slate-700 dark:text-slate-300 border border-brand-border rounded-xl text-xs font-mono flex items-center gap-2 transition-all">
+            <i class="fa-solid fa-bolt text-amber-500"></i> 1v1 Battles
+          </button>
+        </div>
+      </div>
+
+      <!-- Friends Sub-Navigation Bar -->
+      <div class="flex gap-1 p-1 rounded-xl bg-brand-cardBg border border-brand-border text-xs font-medium flex-nowrap overflow-x-auto max-w-full">
+        <button onclick="window.friendsHub.switchSection('discover')" id="fsDiscover" class="friends-section-btn shrink-0 px-4 py-2 rounded-lg text-white bg-brand-600 font-semibold shadow-sm transition-all flex items-center gap-1.5 whitespace-nowrap">
+          <i class="fa-solid fa-magnifying-glass text-xs"></i> Discover
+        </button>
+        <button onclick="window.friendsHub.switchSection('following')" id="fsFollowing" class="friends-section-btn shrink-0 px-4 py-2 rounded-lg text-slate-500 hover:text-slate-800 transition-all flex items-center gap-1.5 whitespace-nowrap">
+          <i class="fa-solid fa-user-check text-xs"></i> Following
+        </button>
+        <button onclick="window.friendsHub.switchSection('followers')" id="fsFollowers" class="friends-section-btn shrink-0 px-4 py-2 rounded-lg text-slate-500 hover:text-slate-800 transition-all flex items-center gap-1.5 whitespace-nowrap">
+          <i class="fa-solid fa-user-group text-xs"></i> Followers
+          <span id="followersCountBadge" class="ml-1 px-1.5 py-0.2 rounded-full text-[10px] bg-brand-darkBg text-brand-accent font-bold">0</span>
+        </button>
+        <button onclick="window.friendsHub.switchSection('requests')" id="fsRequests" class="friends-section-btn shrink-0 px-4 py-2 rounded-lg text-slate-500 hover:text-slate-800 transition-all flex items-center gap-1.5 whitespace-nowrap">
+          <i class="fa-solid fa-user-clock text-xs"></i> Requests
+        </button>
+        <button onclick="window.friendsHub.switchSection('battles')" id="fsBattles" class="friends-section-btn shrink-0 px-4 py-2 rounded-lg text-slate-500 hover:text-slate-800 transition-all flex items-center gap-1.5 whitespace-nowrap">
+          <i class="fa-solid fa-bolt text-xs"></i> Battles
+        </button>
+        <button onclick="window.friendsHub.switchSection('leaderboard')" id="fsLeaderboard" class="friends-section-btn shrink-0 px-4 py-2 rounded-lg text-slate-500 hover:text-slate-800 transition-all flex items-center gap-1.5 whitespace-nowrap">
+          <i class="fa-solid fa-ranking-star text-xs"></i> Leaderboard
+        </button>
+      </div>
+
+      <!-- 1. DISCOVER SECTION -->
+      <div id="fsSectionDiscover" class="friends-section space-y-4">
+        <!-- Search Input Card -->
+        <div class="glass-panel p-5 rounded-2xl space-y-3">
+          <div class="flex items-center gap-3">
+            <div class="flex-1 relative">
+              <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-xs text-slate-400"></i>
+              <input id="searchUsersInput" type="text" placeholder="Search executive directory by name, role, or @username..." class="w-full bg-brand-darkBg border border-brand-border rounded-xl pl-9 pr-4 py-2.5 text-xs text-slate-800 dark:text-white outline-none focus:border-brand-500 transition-colors" oninput="window.friendsHub.searchUsers(this.value)"/>
+            </div>
+            <button onclick="window.friendsHub.searchUsers(document.getElementById('searchUsersInput').value)" class="px-5 py-2.5 bg-brand-600 hover:bg-brand-500 text-white font-mono text-xs rounded-xl shadow-md transition-all flex items-center gap-1.5">
+              <i class="fa-solid fa-search"></i> Search
+            </button>
+          </div>
+          <div id="searchResultsList" class="space-y-2 pt-2">
+            <!-- Search results rendered dynamically -->
+          </div>
+        </div>
+
+        <!-- Directory / Suggested Peers -->
+        <div class="glass-panel p-5 rounded-2xl space-y-4">
+          <div class="flex items-center justify-between border-b border-brand-border pb-3">
+            <h3 class="font-display font-bold text-sm text-slate-800 flex items-center gap-2">
+              <i class="fa-solid fa-star text-amber-400"></i> Executive Network Directory
+            </h3>
+            <button onclick="window.friendsHub.loadFriendsData()" class="font-mono text-[10px] text-brand-500 hover:text-brand-400 flex items-center gap-1">
+              <i class="fa-solid fa-rotate-right"></i> Refresh
+            </button>
+          </div>
+          <div id="suggestedUsersList" class="space-y-2.5 font-mono text-xs">
+            <!-- Rendered dynamically -->
+          </div>
+        </div>
+      </div>
+
+      <!-- 2. FOLLOWING SECTION -->
+      <div id="fsSectionFollowing" class="friends-section hidden space-y-4">
+        <div class="glass-panel p-5 rounded-2xl space-y-4">
+          <div class="border-b border-brand-border pb-3">
+            <h3 class="font-display font-bold text-sm text-slate-800 flex items-center gap-2">
+              <i class="fa-solid fa-user-check text-brand-500"></i> Following Connections
+            </h3>
+            <p class="text-xs text-slate-500 mt-0.5">Peers you follow. Challenge them directly to 1v1 duels.</p>
+          </div>
+          <div id="followingList" class="space-y-2.5">
+            <!-- Rendered dynamically -->
+          </div>
+        </div>
+      </div>
+
+      <!-- 3. FOLLOWERS SECTION -->
+      <div id="fsSectionFollowers" class="friends-section hidden space-y-4">
+        <div class="glass-panel p-5 rounded-2xl space-y-4">
+          <div class="border-b border-brand-border pb-3">
+            <h3 class="font-display font-bold text-sm text-slate-800 flex items-center gap-2">
+              <i class="fa-solid fa-user-group text-cyan-400"></i> Your Followers
+            </h3>
+            <p class="text-xs text-slate-500 mt-0.5">Colleagues and competitors tracking your presentation performance.</p>
+          </div>
+          <div id="followersList" class="space-y-2.5">
+            <!-- Rendered dynamically -->
+          </div>
+        </div>
+      </div>
+
+      <!-- 4. REQUESTS SECTION (ACCEPT & REJECT) -->
+      <div id="fsSectionRequests" class="friends-section hidden space-y-4">
+        <div class="glass-panel p-5 rounded-2xl space-y-4">
+          <div class="border-b border-brand-border pb-3">
+            <h3 class="font-display font-bold text-sm text-slate-800 flex items-center gap-2">
+              <i class="fa-solid fa-user-clock text-amber-500"></i> Incoming Follow &amp; Connection Requests
+            </h3>
+            <p class="text-xs text-slate-500 mt-0.5">Accept to form mutual connections or decline connection offers.</p>
+          </div>
+          <div id="followRequestsList" class="space-y-2.5">
+            <!-- Incoming requests with Accept and Decline buttons -->
+          </div>
+        </div>
+      </div>
+
+      <!-- 5. BATTLES SECTION -->
+      <div id="fsSectionBattles" class="friends-section hidden space-y-4">
+        <!-- Challenge a friend card -->
+        <div class="glass-panel p-5 rounded-2xl space-y-4">
+          <div class="border-b border-brand-border pb-3">
+            <h3 class="font-display font-bold text-base text-slate-800 flex items-center gap-2">
+              <i class="fa-solid fa-bolt text-amber-400"></i> Challenge a Followed Peer to 1v1 Battle
+            </h3>
+            <p class="text-xs text-slate-500 mt-0.5">
+              Launch a live head-to-head duel. Both participants deliver their pitch simultaneously; highest composure and impression vector wins.
+            </p>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div class="space-y-1 sm:col-span-1">
+              <label class="font-mono text-[10px] uppercase text-slate-500">Select Opponent</label>
+              <select id="battleOpponentSelect" class="w-full bg-brand-darkBg border border-brand-border rounded-xl p-2.5 text-xs text-slate-800 dark:text-white outline-none focus:border-brand-500">
+                <option value="">-- Choose from following --</option>
+              </select>
+            </div>
+            <div class="space-y-1">
+              <label class="font-mono text-[10px] uppercase text-slate-500">Battle Duration</label>
+              <select id="battleDurationSelect" class="w-full bg-brand-darkBg border border-brand-border rounded-xl p-2.5 text-xs text-slate-800 dark:text-white outline-none focus:border-brand-500">
+                <option value="30">30 Seconds (Sprint)</option>
+                <option value="60" selected>60 Seconds (Standard)</option>
+                <option value="120">2 Minutes (Executive)</option>
+              </select>
+            </div>
+            <div class="flex items-end">
+              <button onclick="window.friendsHub.sendBattleChallenge()" class="w-full py-2.5 bg-gradient-to-r from-brand-600 to-brand-accent hover:opacity-95 text-white font-display font-bold text-xs rounded-xl shadow-lg shadow-brand-500/25 flex items-center justify-center gap-2 transition-all">
+                <i class="fa-solid fa-bolt"></i> Send Duel Challenge
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 6. GLOBAL LEADERBOARD SECTION -->
+      <div id="fsSectionLeaderboard" class="friends-section hidden space-y-4">
+        <div class="glass-panel p-5 rounded-2xl space-y-4">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-brand-border pb-3">
+            <div>
+              <h3 class="font-display font-bold text-base text-slate-800 flex items-center gap-2">
+                <i class="fa-solid fa-ranking-star text-amber-400"></i> Global Executive Leaderboard
+              </h3>
+              <p class="text-xs text-slate-500 mt-0.5">Top rank candidates across XP, session scores, streaks, and duel victories.</p>
+            </div>
+            <div class="flex items-center gap-2">
+              <select id="leaderboardFilterSelect" onchange="window.friendsHub.loadLeaderboard(this.value)" class="bg-brand-darkBg border border-brand-border rounded-xl px-3 py-1.5 text-xs text-slate-800 dark:text-white outline-none font-mono">
+                <option value="xp">By XP / Level</option>
+                <option value="score">By Best Score</option>
+                <option value="streak">By Day Streak</option>
+                <option value="battles">By 1v1 Battle Wins</option>
+              </select>
+              <button onclick="window.friendsHub.loadLeaderboard(document.getElementById('leaderboardFilterSelect').value)" class="px-3 py-1.5 bg-brand-cardBg hover:bg-brand-border border border-brand-border rounded-xl text-xs font-mono text-slate-600 transition-all">
+                <i class="fa-solid fa-rotate-right"></i>
+              </button>
+            </div>
+          </div>
+
+          <div id="globalLeaderboardList" class="space-y-2.5 font-mono text-xs">
+            <!-- Rendered dynamically -->
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ----------------------------------------------------------------------
+         TAB 5: ANALYTICS & SCORE TREND DASHBOARD
+         ---------------------------------------------------------------------- -->
+    <div id="tabAnalyticsView" class="tab-content hidden space-y-6">
+      
+      <!-- Top Row Charts -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        
+        <!-- Line Chart (7 Cols) -->
+        <div class="lg:col-span-7 glass-panel p-5 rounded-2xl space-y-3">
+          <div class="flex items-center justify-between border-b border-brand-border pb-3">
+            <h3 class="font-display font-bold text-base text-slate-800 flex items-center gap-2">
+              <i class="fa-solid fa-chart-line text-brand-accent"></i> Impression Trends (Last 20 Sessions)
+            </h3>
+            <span class="font-mono text-[10px] text-slate-500">AUTO-UPDATED</span>
+          </div>
+          <div class="h-64 w-full">
+            <canvas id="trendLineChart"></canvas>
+          </div>
+        </div>
+
+        <!-- Radar Chart (5 Cols) -->
+        <div class="lg:col-span-5 glass-panel p-5 rounded-2xl space-y-3">
+          <div class="flex items-center justify-between border-b border-brand-border pb-3">
+            <h3 class="font-display font-bold text-base text-slate-800 flex items-center gap-2">
+              <i class="fa-solid fa-chart-pie text-cyan-400"></i> Confidence Hex-Radar
+            </h3>
+            <span class="font-mono text-[10px] text-slate-500">TARGET VS CURRENT</span>
+          </div>
+          <div class="h-64 w-full flex items-center justify-center">
+            <canvas id="radarChart"></canvas>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Second Row Charts -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+         <!-- Expression Distribution -->
+         <div class="glass-panel p-5 rounded-2xl space-y-3">
+            <div class="flex items-center justify-between border-b border-brand-border pb-3">
+               <h3 class="font-display font-bold text-base text-slate-800 flex items-center gap-2">
+                  <i class="fa-solid fa-chart-doughnut text-purple-400"></i> Expression Distribution
+               </h3>
+               <span class="font-mono text-[10px] text-slate-500">SESSION OVERVIEW</span>
+            </div>
+            <div class="h-48 w-full flex justify-center">
+               <canvas id="expressionDoughnutChart"></canvas>
+            </div>
+         </div>
+         
+         <!-- Emotion Timeline Graph -->
+         <div class="glass-panel p-5 rounded-2xl space-y-3">
+            <div class="flex items-center justify-between border-b border-brand-border pb-3">
+              <h3 class="font-display font-bold text-base text-slate-800 flex items-center gap-2">
+                <i class="fa-solid fa-timeline text-amber-400"></i> Live Emotion Timeline
+              </h3>
+              <span class="font-mono text-[10px] text-slate-500">DOMINANT EMOTION (SEC-BY-SEC)</span>
+            </div>
+            <div class="h-48 w-full">
+              <canvas id="emotionTimelineChart"></canvas>
+            </div>
+         </div>
+      </div>
+
+      <!-- History Data Table -->
+      <div class="glass-panel p-5 rounded-2xl space-y-4">
+        <div class="flex items-center justify-between border-b border-brand-border pb-3">
+          <h3 class="font-display font-bold text-base text-slate-800 flex items-center gap-2">
+            <i class="fa-solid fa-database text-brand-400"></i> Session History Logs
+          </h3>
+          <button onclick="clearAllHistory()" class="px-3 py-1 bg-red-950/80 hover:bg-red-900 text-red-300 border border-red-700 rounded-lg font-mono text-xs transition-colors">
+            Clear Local Logs
+          </button>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-left font-mono text-xs">
+            <thead>
+              <tr class="border-b border-brand-border text-slate-500 uppercase text-[10px]">
+                <th class="py-2.5 px-3">Date &amp; Time</th>
+                <th class="py-2.5 px-3">Overall Score</th>
+                <th class="py-2.5 px-3">Smile</th>
+                <th class="py-2.5 px-3">Eye Contact</th>
+                <th class="py-2.5 px-3">Composure</th>
+                <th class="py-2.5 px-3">Voice Score</th>
+                <th class="py-2.5 px-3">Verdict</th>
+              </tr>
+            </thead>
+            <tbody id="historyTableBody" class="divide-y divide-brand-border text-slate-800">
+              <!-- Rendered via JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ----------------------------------------------------------------------
+         TAB 6: BADGES & GAMIFICATION ENGINE
+         ---------------------------------------------------------------------- -->
+    <div id="tabBadgesView" class="tab-content hidden space-y-6">
+
+      <!-- 1. PROGRESSION & STREAK PANEL -->
+      <div class="glass-panel p-6 rounded-2xl space-y-5" id="progressionPanel">
+        <div class="flex items-center justify-between border-b border-brand-border pb-3">
+          <h3 class="font-display font-bold text-lg text-slate-800 flex items-center gap-2">
+            <i class="fa-solid fa-fire text-amber-500"></i> Executive Progression &amp; Streak
+          </h3>
+          <span class="font-mono text-[10px] px-2.5 py-1 rounded-full bg-brand-500/10 text-brand-500 font-bold tracking-wider" id="progressionSubLabel">
+            BIOMETRIC ACTIVE
+          </span>
+        </div>
+
+        <div id="progressionLoggedOut" class="hidden text-center py-6 font-mono text-xs text-slate-500">
+          <i class="fa-solid fa-lock mb-2 block text-2xl text-brand-400"></i>
+          Log in with Face ID or Email to track streaks, level advancement, and earn coins.
+        </div>
+
+        <div id="progressionContent" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <!-- Level Card -->
+          <div class="bg-brand-cardBg p-4 rounded-xl border border-brand-border flex items-center gap-3.5 hover:border-brand-500/40 transition-all">
+            <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-brand-600 to-brand-accent flex items-center justify-center text-white font-bold text-xl shadow-md shadow-brand-500/25 shrink-0" id="levelBadgeCircle">
+              1
+            </div>
+            <div>
+              <div class="font-display font-bold text-sm text-slate-800" id="levelLabel">Level 1</div>
+              <div class="text-[11px] font-semibold text-brand-accent" id="levelTitle">Novice Candidate</div>
+              <div class="font-mono text-[10px] text-slate-500" id="xpLabel">250 Total XP</div>
+            </div>
+          </div>
+
+          <!-- Streak Card -->
+          <div class="bg-brand-cardBg p-4 rounded-xl border border-brand-border flex items-center gap-3.5 hover:border-amber-500/40 transition-all">
+            <div class="w-12 h-12 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-500 text-2xl shrink-0">
+              <i class="fa-solid fa-fire animate-pulse"></i>
+            </div>
+            <div>
+              <div class="font-display font-bold text-sm text-slate-800 flex items-center gap-1.5">
+                <span id="streakCount">2</span> Day Streak
+              </div>
+              <div class="font-mono text-[10px] text-slate-500">Best: <span id="longestStreak" class="font-bold text-slate-700 dark:text-slate-300">4</span> days</div>
+              <div class="text-[10px] text-amber-500 font-mono font-bold">Daily Training Active</div>
+            </div>
+          </div>
+
+          <!-- Coins Card -->
+          <div class="bg-brand-cardBg p-4 rounded-xl border border-brand-border flex items-center gap-3.5 hover:border-yellow-500/40 transition-all">
+            <div class="w-12 h-12 rounded-2xl bg-yellow-500/10 border border-yellow-500/30 flex items-center justify-center text-yellow-500 text-2xl shrink-0">
+              <i class="fa-solid fa-coins"></i>
+            </div>
+            <div>
+              <div class="font-display font-bold text-sm text-slate-800">
+                <span id="coinsDisplay">45</span> Coins
+              </div>
+              <div class="font-mono text-[10px] text-slate-500">Earned from sessions &amp; duels</div>
+              <div class="text-[10px] text-yellow-600 dark:text-yellow-400 font-mono font-semibold">+Bonus for 85+ score</div>
+            </div>
+          </div>
+
+          <!-- XP Level Progress Bar Card -->
+          <div class="bg-brand-cardBg p-4 rounded-xl border border-brand-border flex flex-col justify-center space-y-2 hover:border-brand-500/40 transition-all">
+            <div class="flex justify-between font-mono text-[10px] text-slate-500">
+              <span>Next Level Progress</span>
+              <span id="xpToNextLabel" class="font-bold text-brand-accent">250 / 500 XP</span>
+            </div>
+            <div class="w-full bg-slate-200 dark:bg-slate-800 h-2.5 rounded-full overflow-hidden">
+              <div id="xpProgressBar" class="h-full bg-gradient-to-r from-brand-500 to-brand-accent rounded-full transition-all duration-700" style="width: 50%;"></div>
+            </div>
+            <div class="text-[9px] font-mono text-slate-400 text-right">+50 XP every completed session</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2. DAILY ASK / DAILY QUESTS CHECKLIST -->
+      <div class="glass-panel p-6 rounded-2xl space-y-4">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-brand-border pb-3">
+          <div>
+            <h3 class="font-display font-bold text-lg text-slate-800 flex items-center gap-2">
+              <i class="fa-solid fa-list-check text-brand-500"></i> Daily Ask &amp; Quests
+            </h3>
+            <p class="text-xs text-slate-500 mt-0.5">
+              Complete your daily executive challenges to maintain your streak and harvest XP &amp; coins.
+            </p>
+          </div>
+          <div class="text-right font-mono text-xs text-slate-500">
+            <span id="dailyTasksProgressText" class="font-bold text-brand-accent">1 of 5 Completed (20%)</span>
+            <div class="w-36 bg-slate-200 dark:bg-slate-800 h-1.5 rounded-full overflow-hidden mt-1 ml-auto">
+              <div id="dailyTasksProgressBar" class="h-full bg-brand-500 rounded-full transition-all duration-500" style="width: 20%;"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="space-y-3" id="dailyTasksList">
+          <!-- Daily tasks dynamically rendered via gamification.js -->
+        </div>
+      </div>
+
+      <!-- 3. MILESTONE ACHIEVEMENTS -->
+      <div class="glass-panel p-6 rounded-2xl space-y-4">
+        <div class="border-b border-brand-border pb-3 flex items-center justify-between">
+          <div>
+            <h3 class="font-display font-bold text-lg text-slate-800 flex items-center gap-2">
+              <i class="fa-solid fa-medal text-amber-500"></i> Milestone Achievements
+            </h3>
+            <p class="text-xs text-slate-500 mt-0.5">Key career &amp; practice milestones unlocked as you build consistency.</p>
+          </div>
+          <span class="font-mono text-[10px] text-slate-400">AUTOMATICALLY UNLOCKED</span>
+        </div>
+        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3" id="achievementsGrid">
+          <!-- Rendered via gamification.js -->
+        </div>
+      </div>
+
+      <!-- 4. BENCHMARK BADGES & LOCAL LEADERBOARD -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        
+        <!-- Badges Grid (7 Cols) -->
+        <div class="lg:col-span-7 glass-panel p-6 rounded-2xl space-y-4">
+          <div class="border-b border-brand-border pb-3 flex justify-between items-end">
+            <div>
+               <h3 class="font-display font-bold text-xl text-slate-800 flex items-center gap-2">
+                 <i class="fa-solid fa-award text-amber-400"></i> Benchmark Badges
+               </h3>
+               <p class="text-xs text-slate-500 mt-0.5">Unlock prestige badges as your performance crosses key benchmarks.</p>
+            </div>
+            <button onclick="testConfetti()" class="text-[10px] font-mono text-brand-500 hover:text-brand-400 opacity-70 hover:opacity-100 transition-opacity">
+               <i class="fa-solid fa-wand-magic-sparkles"></i> Test Celebration
+            </button>
+          </div>
+
+          <div class="grid grid-cols-2 sm:grid-cols-3 gap-4" id="badgesGrid">
+            <!-- Badges dynamically rendered -->
+          </div>
+        </div>
+
+        <!-- Local Leaderboard (5 Cols) -->
+        <div class="lg:col-span-5 glass-panel p-6 rounded-2xl space-y-4">
+          <div class="border-b border-brand-border pb-3 flex items-center justify-between">
+            <div>
+              <h3 class="font-display font-bold text-xl text-slate-800 flex items-center gap-2">
+                <i class="fa-solid fa-ranking-star text-brand-accent"></i> Local Leaderboard
+              </h3>
+              <p class="text-xs text-slate-500 mt-0.5">Top candidate score records on this device.</p>
+            </div>
+            <button onclick="promptAddLeaderboardEntry()" class="px-3 py-1.5 bg-brand-600 hover:bg-brand-500 text-white font-mono text-xs rounded-lg transition-colors">
+              + Add Highscore
+            </button>
+          </div>
+
+          <div class="space-y-3 font-mono text-xs" id="leaderboardList">
+            <!-- Rendered dynamically -->
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- ========================================================================
+       MODAL: BIOMETRIC FACE REGISTRATION & LOGIN (FIXED & WELL BETTER UI)
+       ======================================================================== -->
+  <div id="modalAuth" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 hidden">
+    <div class="bg-brand-darkBg border border-brand-border p-6 rounded-2xl max-w-lg w-full space-y-5 shadow-2xl relative">
+      
+      <!-- Modal Header -->
+      <div class="flex items-center justify-between border-b border-brand-border pb-3">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-lg bg-brand-500/10 border border-brand-500/30 flex items-center justify-center text-brand-500 font-bold">
+            <i class="fa-solid fa-fingerprint text-base"></i>
+          </div>
+          <div>
+            <h3 class="font-display font-bold text-lg text-slate-800">Biometric Identity &amp; Auth</h3>
+            <p class="text-[11px] font-mono text-slate-500">Vision Lab Neural Recognition System</p>
+          </div>
+        </div>
+        <button onclick="faceAuth.closeAuthModal()" class="text-slate-400 hover:text-slate-600 transition-colors">
+          <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+      </div>
+
+      <!-- Auth Navigation Sub-tabs -->
+      <div class="flex items-center gap-2 border-b border-brand-border pb-2 text-xs font-mono">
+        <button id="authTabBtn_email" onclick="faceAuth.switchAuthTab('email')" class="px-3 py-1.5 border-b-2 border-brand-500 text-brand-500 font-bold transition-all flex items-center gap-1.5">
+          <i class="fa-solid fa-envelope"></i> Email Login
+        </button>
+        <button id="authTabBtn_register" onclick="faceAuth.switchAuthTab('register')" class="px-3 py-1.5 border-b-2 border-transparent text-slate-500 hover:text-slate-800 transition-all flex items-center gap-1.5">
+          <i class="fa-solid fa-user-plus"></i> Register Email &amp; Face
+        </button>
+        <button id="authTabBtn_face-login" onclick="faceAuth.switchAuthTab('face-login')" class="px-3 py-1.5 border-b-2 border-transparent text-slate-500 hover:text-slate-800 transition-all flex items-center gap-1.5">
+          <i class="fa-solid fa-camera"></i> Quick Face Scan
+        </button>
+      </div>
+
+      <!-- SUB-PANEL 1: EMAIL LOGIN (PRIMARY & STRICT BIOMETRIC LOCK) -->
+      <div id="authTabPanel_email" class="space-y-4">
+        <div class="bg-brand-cardBg p-5 rounded-2xl border border-brand-border space-y-4 font-mono text-xs">
+          <div>
+            <label class="block text-slate-700 dark:text-slate-200 font-semibold mb-1.5 flex items-center gap-1.5">
+              <i class="fa-solid fa-envelope text-brand-500"></i> Registered Email Address:
+            </label>
+            <input id="loginEmailInput" type="email" placeholder="e.g. user@example.com" class="w-full bg-brand-darkBg border border-brand-border px-3.5 py-2.5 rounded-xl text-slate-800 dark:text-white outline-none focus:border-brand-500 text-sm font-sans" onkeydown="if(event.key==='Enter') faceAuth.submitEmailLogin(event)"/>
+          </div>
+          
+          <div class="p-3 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-700 dark:text-amber-400 text-[11px] leading-relaxed">
+            <i class="fa-solid fa-shield-halved mr-1 text-xs"></i>
+            <strong>Single-User Biometric Lock:</strong> Sessions are bound to the authenticated user. If another person's face appears in front of the camera, <em>no face is detected</em> and scores pause until the account owner returns.
+          </div>
+        </div>
+
+        <button onclick="faceAuth.submitEmailLogin(event)" class="w-full py-3 bg-gradient-to-r from-brand-600 to-brand-accent hover:opacity-95 text-white font-display font-bold text-sm rounded-xl transition-all shadow-md flex items-center justify-center gap-2">
+          <i class="fa-solid fa-right-to-bracket"></i> Sign In with Email
+        </button>
+
+        <div class="text-center pt-1">
+          <button onclick="faceAuth.switchAuthTab('register')" class="text-xs font-mono text-brand-600 hover:text-brand-700 hover:underline">
+            Don't have an account or need to enroll your face? Register here &rarr;
+          </button>
+        </div>
+      </div>
+
+      <!-- SUB-PANEL 2: REGISTER EMAIL & BIOMETRIC FACE -->
+      <div id="authTabPanel_register" class="hidden space-y-4">
+        <div class="biometric-scanner-frame aspect-4/3 relative flex items-center justify-center">
+          <video id="enrollVideo" class="w-full h-full object-cover scale-x-[-1]" autoplay muted playsinline></video>
+          <div class="biometric-oval-guide"></div>
+          <div class="biometric-scan-line"></div>
+          
+          <div class="hud-corner-tl"></div>
+          <div class="hud-corner-tr"></div>
+          <div class="hud-corner-bl"></div>
+          <div class="hud-corner-br"></div>
+
+          <div class="absolute top-3 right-3">
+            <span id="enrollFaceBadge" class="text-[10px] font-mono px-2 py-0.5 rounded border border-amber-500/40 bg-amber-500/20 text-amber-500">
+              LOOK INTO CAMERA
+            </span>
+          </div>
+        </div>
+
+        <!-- Biometric progress bar -->
+        <div class="w-full bg-slate-200 rounded-full h-1.5 overflow-hidden">
+          <div id="enrollProgressBar" class="h-full bg-gradient-to-r from-brand-500 to-brand-accent transition-all duration-300" style="width: 0%"></div>
+        </div>
+
+        <div class="flex items-center justify-between bg-brand-cardBg p-3 rounded-xl border border-brand-border font-mono text-xs">
+          <span id="enrollStatusText" class="text-slate-600">Align face inside oval and click Capture.</span>
+          <button id="btnCaptureFace" onclick="faceAuth.captureFaceForEnrollment()" disabled class="px-3.5 py-1.5 bg-brand-500 hover:bg-brand-400 disabled:opacity-40 text-white font-bold rounded-lg transition-colors flex items-center gap-1.5">
+            <i class="fa-solid fa-camera"></i> Capture Face
+          </button>
+        </div>
+
+        <!-- Details form (revealed or filled) -->
+        <div id="enrollStep_details" class="space-y-3 pt-2 border-t border-brand-border">
+          <div class="flex items-center gap-3">
+            <img id="enrollFaceThumbnail" src="" class="hidden w-12 h-12 rounded-xl border border-brand-500 object-cover" alt="Captured Face"/>
+            <div class="grid grid-cols-2 gap-2 w-full font-mono text-xs">
+              <div>
+                <label class="block text-slate-500 mb-0.5">Full Name:</label>
+                <input id="regName" type="text" placeholder="e.g. Sarah Connor" class="w-full bg-brand-cardBg border border-brand-border p-2 rounded-lg text-slate-800 outline-none focus:border-brand-400"/>
+              </div>
+              <div>
+                <label class="block text-slate-500 mb-0.5">Email Address:</label>
+                <input id="regEmail" type="email" placeholder="e.g. sarah@domain.com" class="w-full bg-brand-cardBg border border-brand-border p-2 rounded-lg text-slate-800 outline-none focus:border-brand-400"/>
+              </div>
+            </div>
+          </div>
+          <div class="grid grid-cols-2 gap-2 font-mono text-xs">
+            <div>
+              <label class="block text-slate-500 mb-0.5">Username (optional):</label>
+              <input id="regUsername" type="text" placeholder="e.g. sarah" class="w-full bg-brand-cardBg border border-brand-border p-2 rounded-lg text-slate-800 outline-none focus:border-brand-400"/>
+            </div>
+            <div>
+              <label class="block text-slate-500 mb-0.5">Role / Position:</label>
+              <input id="regRole" type="text" placeholder="e.g. Executive Candidate" class="w-full bg-brand-cardBg border border-brand-border p-2 rounded-lg text-slate-800 outline-none focus:border-brand-400 text-xs font-mono"/>
+            </div>
+          </div>
+
+          <button id="btnSubmitReg" onclick="faceAuth.submitRegistration(event)" class="w-full py-2.5 bg-gradient-to-r from-brand-600 to-brand-accent hover:opacity-95 text-white font-display font-bold text-sm rounded-xl transition-all shadow-md">
+            Save Account &amp; Enroll Biometric Face
+          </button>
+        </div>
+      </div>
+
+      <!-- SUB-PANEL 3: FACE ID QUICK SCAN -->
+      <div id="authTabPanel_face-login" class="hidden space-y-4">
+        <div class="biometric-scanner-frame aspect-4/3 relative flex items-center justify-center">
+          <video id="loginVideo" class="w-full h-full object-cover scale-x-[-1]" autoplay muted playsinline></video>
+          <div class="biometric-oval-guide"></div>
+          <div class="biometric-scan-line"></div>
+          
+          <div class="hud-corner-tl"></div>
+          <div class="hud-corner-tr"></div>
+          <div class="hud-corner-bl"></div>
+          <div class="hud-corner-br"></div>
+        </div>
+
+        <div class="bg-brand-cardBg p-3.5 rounded-xl border border-brand-border font-mono text-xs flex items-center justify-between">
+          <div id="loginStatusText" class="text-slate-600 flex items-center gap-2">
+            <i class="fa-solid fa-circle-notch animate-spin text-brand-accent"></i> Scanning face for returning profile...
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ========================================================================
+       MODAL: SHARE SOCIAL CARD
+       ======================================================================== -->
+  <div id="modalSocialCard" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 hidden">
+    <div class="bg-brand-darkBg border border-brand-border p-6 rounded-2xl max-w-md w-full space-y-5">
+      <div class="flex items-center justify-between border-b border-brand-border pb-3">
+        <h3 class="font-display font-bold text-lg text-slate-800">Shareable Impression Card</h3>
+        <button onclick="closeModal('modalSocialCard')" class="text-slate-400 hover:text-slate-600 transition-colors"><i class="fa-solid fa-xmark text-lg"></i></button>
+      </div>
+
+      <div id="cardRenderContainer" class="p-6 rounded-2xl bg-gradient-to-br from-brand-cardBg to-brand-darkBg border border-brand-500/30 text-center space-y-4 shadow-2xl relative overflow-hidden">
+        <div class="absolute -right-8 -bottom-8 w-32 h-32 bg-brand-500/10 rounded-full blur-2xl"></div>
+        <div class="font-mono text-[10px] tracking-widest text-brand-400 uppercase">VISION LAB AI CERTIFIED</div>
+        
+        <div class="w-20 h-20 mx-auto rounded-full bg-brand-500/10 border-2 border-brand-400 flex items-center justify-center">
+          <span id="cardScoreNum" class="font-display font-bold text-3xl text-brand-accent">88</span>
+        </div>
+
+        <div>
+          <h4 id="cardVerdictTitle" class="font-display font-bold text-lg text-slate-800">Executive Ready</h4>
+          <p id="cardDateText" class="font-mono text-[11px] text-slate-500 mt-1">Logged on 2026-08-04</p>
+        </div>
+
+        <div class="grid grid-cols-3 gap-2 font-mono text-[10px] text-slate-600 border-t border-brand-border pt-3">
+          <div>Smile: <span id="cardSmileVal" class="text-slate-800 font-bold">85%</span></div>
+          <div>Eye: <span id="cardEyeVal" class="text-slate-800 font-bold">92%</span></div>
+          <div>Voice: <span id="cardVoiceVal" class="text-slate-800 font-bold">80%</span></div>
+        </div>
+      </div>
+
+      <button onclick="downloadSocialCardPNG()" class="w-full py-3 bg-brand-500 hover:bg-brand-400 text-white font-display font-bold text-sm rounded-xl transition-all shadow-md flex items-center justify-center gap-2">
+        <i class="fa-solid fa-download"></i> Download PNG Scorecard
+      </button>
+    </div>
+  </div>
+
+  <!-- ========================================================================
+       MODAL: PDF REPORT PREVIEW
+       ======================================================================== -->
+  <div id="modalPdfReport" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 hidden">
+    <div class="bg-brand-darkBg border border-brand-border p-6 rounded-2xl max-w-lg w-full space-y-5">
+      <div class="flex items-center justify-between border-b border-brand-border pb-3">
+        <h3 class="font-display font-bold text-lg text-slate-800">Generate Executive Assessment PDF</h3>
+        <button onclick="closeModal('modalPdfReport')" class="text-slate-400 hover:text-slate-600 transition-colors"><i class="fa-solid fa-xmark text-lg"></i></button>
+      </div>
+
+      <div class="space-y-3 text-xs text-slate-600 font-mono">
+        <p>This report includes detailed diagnostics, face landmark stability vectors, acoustic voice scores, posture alerts, and personalized AI tips.</p>
+        <div class="bg-brand-cardBg p-3 rounded-lg border border-brand-border">
+          <div class="text-slate-500">Candidate Identifier:</div>
+          <input id="pdfCandidateName" type="text" value="Executive Candidate" class="w-full bg-brand-darkBg border border-brand-border p-2 rounded text-slate-800 mt-1 text-xs outline-none focus:border-brand-400 transition-colors"/>
+        </div>
+      </div>
+
+      <button onclick="generateProfessionalPDF()" class="w-full py-3 bg-red-600 hover:bg-red-500 text-white font-display font-bold text-sm rounded-xl transition-all shadow-md flex items-center justify-center gap-2">
+        <i class="fa-solid fa-file-pdf"></i> Download Official PDF Report
+      </button>
+    </div>
+  </div>
+
+  <!-- ========================================================================
+       APPLICATION SCRIPTS (MODULAR & CLEANLY SEPARATED)
+       ======================================================================== -->
+  <script src="js/config.js"></script>
+  <script src="js/face-auth.js"></script>
+  <script src="js/challenge.js"></script>
+  <script src="js/studio.js"></script>
+  <script src="js/interview.js"></script>
+  <script src="js/practice.js"></script>
+  <script src="js/analytics.js"></script>
+  <script src="js/badges.js"></script>
+  <script src="js/gamification.js"></script>
+  <script src="js/friends.js"></script>
+  <script src="js/app.js"></script>
+
+</body>
+</html>

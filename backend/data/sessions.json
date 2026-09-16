@@ -1,0 +1,12 @@
+[
+  {
+    "id": "sess_1",
+    "timestamp": "2026-08-01 10:20:00",
+    "overall": 92,
+    "smile": 86,
+    "eyeContact": 91,
+    "composure": 94,
+    "voiceScore": 88,
+    "verdict": "Executive Ready"
+  }
+]

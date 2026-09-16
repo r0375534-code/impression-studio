@@ -1,0 +1,437 @@
+[
+  {
+    "id": "usr_alex_vance",
+    "email": "alex@vision.ai",
+    "username": "alexvance",
+    "name": "Alex Vance",
+    "role": "Senior Executive",
+    "avatar": "https://api.dicebear.com/7.x/bottts/svg?seed=alex",
+    "registeredAt": "2026-08-01T10:00:00.000Z",
+    "faceDescriptor": null,
+    "following": [
+      "usr_elena_rostova",
+      "usr_marcus_chen",
+      "usr_david_kim"
+    ],
+    "followers": [
+      "usr_elena_rostova",
+      "usr_sarah_jenkins",
+      "usr_david_kim"
+    ],
+    "friendRequests": [],
+    "stats": {
+      "sessionsCompleted": 19,
+      "avgScore": 93,
+      "challengeWins": 12,
+      "challengeLosses": 3
+    },
+    "gamification": {
+      "xp": 2596,
+      "level": 6,
+      "currentStreak": 7,
+      "longestStreak": 14,
+      "lastSessionDate": "2026-09-16",
+      "coins": 360,
+      "unlockedAchievements": [
+        "first_session",
+        "sessions_5",
+        "sessions_10",
+        "streak_3",
+        "streak_7",
+        "high_scorer",
+        "level_5"
+      ],
+      "dailyTasks": [
+        {
+          "id": "task_calib",
+          "title": "Diagnostic Calibration",
+          "desc": "Complete 1 camera & posture calibration",
+          "xpReward": 50,
+          "coinsReward": 10,
+          "completed": true,
+          "claimed": true
+        },
+        {
+          "id": "task_smile",
+          "title": "Executive Warmth",
+          "desc": "Hold ≥ 75% smile warmth for 15 seconds",
+          "xpReward": 75,
+          "coinsReward": 15,
+          "completed": true,
+          "claimed": false
+        },
+        {
+          "id": "task_eye",
+          "title": "Laser Eye Contact",
+          "desc": "Maintain ≥ 80% direct eye contact in session",
+          "xpReward": 75,
+          "coinsReward": 15,
+          "completed": true,
+          "claimed": false
+        },
+        {
+          "id": "task_voice",
+          "title": "Vocal Presence",
+          "desc": "Complete audio speech analysis with pace 110-160 wpm",
+          "xpReward": 100,
+          "coinsReward": 20,
+          "completed": true,
+          "claimed": false
+        },
+        {
+          "id": "task_duel",
+          "title": "Arena Contender",
+          "desc": "Challenge or compete in a 1v1 battle duel",
+          "xpReward": 150,
+          "coinsReward": 30,
+          "completed": false,
+          "claimed": false
+        }
+      ],
+      "dailyTasksDate": "2026-09-16"
+    },
+    "badges": [
+      "interview_ready",
+      "radiant_smile",
+      "iron_composure",
+      "silver_tongue"
+    ]
+  },
+  {
+    "id": "usr_elena_rostova",
+    "email": "elena@vision.ai",
+    "username": "elenarostova",
+    "name": "Elena Rostova",
+    "role": "Product Director",
+    "avatar": "https://api.dicebear.com/7.x/bottts/svg?seed=elena",
+    "registeredAt": "2026-08-02T11:30:00.000Z",
+    "faceDescriptor": null,
+    "following": [
+      "usr_alex_vance"
+    ],
+    "followers": [
+      "usr_alex_vance",
+      "usr_david_kim"
+    ],
+    "friendRequests": [
+      {
+        "id": "freq_elena_1",
+        "fromId": "usr_sarah_jenkins",
+        "fromName": "Sarah Jenkins",
+        "fromAvatar": "https://api.dicebear.com/7.x/bottts/svg?seed=sarah",
+        "fromRole": "Managing Partner",
+        "status": "pending",
+        "timestamp": "2026-09-16T09:15:00.000Z"
+      }
+    ],
+    "stats": {
+      "sessionsCompleted": 15,
+      "avgScore": 91,
+      "challengeWins": 11,
+      "challengeLosses": 5
+    },
+    "gamification": {
+      "xp": 1850,
+      "level": 4,
+      "currentStreak": 5,
+      "longestStreak": 9,
+      "lastSessionDate": "2026-09-16",
+      "coins": 240,
+      "unlockedAchievements": [
+        "first_session",
+        "sessions_5",
+        "sessions_10",
+        "streak_3",
+        "high_scorer"
+      ]
+    },
+    "badges": [
+      "interview_ready",
+      "eye_contact_master",
+      "silver_tongue"
+    ]
+  },
+  {
+    "id": "usr_marcus_chen",
+    "email": "marcus@vision.ai",
+    "username": "marcuschen",
+    "name": "Marcus Chen",
+    "role": "Tech Lead",
+    "avatar": "https://api.dicebear.com/7.x/bottts/svg?seed=marcus",
+    "registeredAt": "2026-08-03T14:15:00.000Z",
+    "faceDescriptor": null,
+    "following": [
+      "usr_alex_vance",
+      "usr_sarah_jenkins"
+    ],
+    "followers": [
+      "usr_alex_vance"
+    ],
+    "friendRequests": [],
+    "stats": {
+      "sessionsCompleted": 10,
+      "avgScore": 88,
+      "challengeWins": 7,
+      "challengeLosses": 4
+    },
+    "gamification": {
+      "xp": 1200,
+      "level": 3,
+      "currentStreak": 3,
+      "longestStreak": 6,
+      "lastSessionDate": "2026-09-15",
+      "coins": 150,
+      "unlockedAchievements": [
+        "first_session",
+        "sessions_5",
+        "sessions_10",
+        "streak_3"
+      ]
+    },
+    "badges": [
+      "interview_ready",
+      "perfect_posture"
+    ]
+  },
+  {
+    "id": "usr_sarah_jenkins",
+    "email": "sarah@vision.ai",
+    "username": "sarahjenkins",
+    "name": "Sarah Jenkins",
+    "role": "Managing Partner",
+    "avatar": "https://api.dicebear.com/7.x/bottts/svg?seed=sarah",
+    "registeredAt": "2026-08-10T09:00:00.000Z",
+    "faceDescriptor": null,
+    "following": [
+      "usr_alex_vance"
+    ],
+    "followers": [
+      "usr_marcus_chen"
+    ],
+    "friendRequests": [
+      {
+        "id": "freq_sarah_1",
+        "fromId": "usr_alex_vance",
+        "fromName": "Alex Vance",
+        "fromAvatar": "https://api.dicebear.com/7.x/bottts/svg?seed=alex",
+        "fromRole": "Senior Executive",
+        "status": "pending",
+        "timestamp": "2026-09-16T07:45:00.000Z"
+      }
+    ],
+    "stats": {
+      "sessionsCompleted": 14,
+      "avgScore": 93,
+      "challengeWins": 9,
+      "challengeLosses": 2
+    },
+    "gamification": {
+      "xp": 1720,
+      "level": 4,
+      "currentStreak": 6,
+      "longestStreak": 11,
+      "lastSessionDate": "2026-09-16",
+      "coins": 260,
+      "unlockedAchievements": [
+        "first_session",
+        "sessions_5",
+        "sessions_10",
+        "streak_3",
+        "high_scorer"
+      ]
+    },
+    "badges": [
+      "interview_ready",
+      "iron_composure",
+      "radiant_smile"
+    ]
+  },
+  {
+    "id": "usr_david_kim",
+    "email": "david@vision.ai",
+    "username": "davidkim",
+    "name": "David Kim",
+    "role": "VP of Strategy",
+    "avatar": "https://api.dicebear.com/7.x/bottts/svg?seed=david",
+    "registeredAt": "2026-08-15T16:00:00.000Z",
+    "faceDescriptor": null,
+    "following": [
+      "usr_elena_rostova",
+      "usr_alex_vance"
+    ],
+    "followers": [
+      "usr_alex_vance"
+    ],
+    "friendRequests": [],
+    "stats": {
+      "sessionsCompleted": 6,
+      "avgScore": 86,
+      "challengeWins": 4,
+      "challengeLosses": 3
+    },
+    "gamification": {
+      "xp": 820,
+      "level": 2,
+      "currentStreak": 2,
+      "longestStreak": 4,
+      "lastSessionDate": "2026-09-15",
+      "coins": 95,
+      "unlockedAchievements": [
+        "first_session",
+        "sessions_5"
+      ]
+    },
+    "badges": [
+      "interview_ready",
+      "eye_contact_master"
+    ]
+  },
+  {
+    "id": "usr_1789559131315",
+    "email": "25cs281@skcet.ac.in",
+    "username": "dragon",
+    "name": "vijay",
+    "role": "student",
+    "avatar": "data:image/jpeg;base64,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",
+    "registeredAt": "2026-09-16T11:45:31.318Z",
+    "faceDescriptor": [
+      -0.14818449318408966,
+      0.12632162868976593,
+      0.006345525849610567,
+      -0.06288115680217743,
+      -0.0633404329419136,
+      -0.016106560826301575,
+      -0.005131269805133343,
+      -0.08002816885709763,
+      0.1591491401195526,
+      -0.07941503822803497,
+      0.25867244601249695,
+      -0.02597297914326191,
+      -0.1922190636396408,
+      -0.17631137371063232,
+      0.038349833339452744,
+      0.12325210869312286,
+      -0.17042608559131622,
+      -0.1306224763393402,
+      -0.014515692368149757,
+      -0.08419422060251236,
+      0.015385382808744907,
+      0.0022759628482162952,
+      0.0905749499797821,
+      0.15281827747821808,
+      -0.12310895323753357,
+      -0.3881601095199585,
+      -0.09027396887540817,
+      -0.16627459228038788,
+      0.047984778881073,
+      -0.0898873507976532,
+      -0.03190819174051285,
+      0.009127531200647354,
+      -0.19356417655944824,
+      -0.008353342302143574,
+      -0.04300035163760185,
+      0.05959390476346016,
+      -0.005688012577593327,
+      0.022685782983899117,
+      0.16500505805015564,
+      0.003952047321945429,
+      -0.11820091307163239,
+      -0.056478679180145264,
+      0.026458973065018654,
+      0.2973112463951111,
+      0.17860430479049683,
+      0.05014714598655701,
+      0.05879761278629303,
+      -0.017633778974413872,
+      0.0753784105181694,
+      -0.18852047622203827,
+      0.10169041156768799,
+      0.07468787580728531,
+      0.16730897128582,
+      -0.011120900511741638,
+      0.0696306899189949,
+      -0.150588721036911,
+      -0.043218739330768585,
+      0.034137334674596786,
+      -0.15850451588630676,
+      0.0846380963921547,
+      0.008381037041544914,
+      -0.012827559374272823,
+      -0.01900843344628811,
+      -0.0005781255895271897,
+      0.3677156865596771,
+      0.08427203446626663,
+      -0.14199461042881012,
+      -0.11821043491363525,
+      0.14121930301189423,
+      -0.13719633221626282,
+      -0.0015900196740403771,
+      0.12449472397565842,
+      -0.09539788216352463,
+      -0.1684153974056244,
+      -0.2729434669017792,
+      0.12578009068965912,
+      0.4199305772781372,
+      0.1097550094127655,
+      -0.17144356667995453,
+      0.011843396350741386,
+      -0.19080986082553864,
+      -0.029672574251890182,
+      0.029896747320890427,
+      0.0027139894664287567,
+      -0.14768582582473755,
+      0.013542129658162594,
+      -0.20088700950145721,
+      0.04026320204138756,
+      0.19561845064163208,
+      -0.044806066900491714,
+      -0.05917619541287422,
+      0.21314707398414612,
+      -0.008005686104297638,
+      0.059632807970047,
+      0.022448435425758362,
+      0.021840913221240044,
+      -0.11741552501916885,
+      0.03468035161495209,
+      -0.10510122776031494,
+      -0.012485147453844547,
+      0.03173293173313141,
+      -0.10030777752399445,
+      -0.014331808313727379,
+      0.04416690021753311,
+      -0.1972012221813202,
+      0.09641566127538681,
+      0.02339519001543522,
+      -0.0648135095834732,
+      -0.05558120459318161,
+      0.08949422836303711,
+      -0.2482208013534546,
+      -0.09402196854352951,
+      0.1323581337928772,
+      -0.3076731562614441,
+      0.18562784790992737,
+      0.12852682173252106,
+      0.10560215264558792,
+      0.20408198237419128,
+      0.09640182554721832,
+      0.07199200987815857,
+      -0.012920193374156952,
+      -0.06764885783195496,
+      -0.031244363635778427,
+      -0.01321282610297203,
+      0.13209153711795807,
+      -0.043842900544404984,
+      0.11389514803886414,
+      0.04929863661527634
+    ],
+    "stats": {
+      "sessionsCompleted": 0,
+      "avgScore": 88,
+      "challengeWins": 0,
+      "challengeLosses": 0
+    },
+    "badges": [
+      "interview_ready"
+    ]
+  }
+]

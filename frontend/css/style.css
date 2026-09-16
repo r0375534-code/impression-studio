@@ -1,0 +1,271 @@
+/* ==========================================================================
+   AI FIRST IMPRESSION ANALYZER PRO - COMPLETE STYLESHEET
+   Sandal Brown, Warm Copper, Cream & Crisp White Executive Palette
+   ========================================================================== */
+
+:root {
+  --bg-dark: #fcf8f3;
+  --card-dark: #ffffff;
+  --border-dark: #e8d9c8;
+  --emerald-glow: rgba(176, 125, 82, 0.20);
+  --brand-primary: #9e6b41;
+  --brand-accent: #b07d52;
+  --cream: #fdf8f3;
+  --sandal: #c9a07a;
+  --sandal-deep: #7c502b;
+  --ink: #2e1a0a;
+  --ink-soft: #5c3d1e;
+  --ink-muted: #8c7b6b;
+}
+
+body {
+  background-color: var(--bg-dark);
+  background-image: 
+    radial-gradient(circle at 10% 10%, rgba(176, 125, 82, 0.07) 0%, transparent 40%),
+    radial-gradient(circle at 90% 90%, rgba(201, 160, 122, 0.08) 0%, transparent 40%),
+    radial-gradient(circle at 50% 50%, rgba(158, 107, 65, 0.04) 0%, transparent 60%);
+  color: #2e1a0a;
+  font-family: 'Inter', sans-serif;
+  overflow-x: hidden;
+}
+
+/* Glassmorphism Styling - Crisp White with Sandal Accents */
+.glass-panel {
+  background: var(--card-dark);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--border-dark);
+  box-shadow: 0 8px 30px 0 rgba(46, 26, 10, 0.06);
+}
+
+.glass-card {
+  background: #ffffff;
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(176, 125, 82, 0.20);
+}
+
+/* Pulse Glow Animations */
+@keyframes pulseGlow {
+  0%, 100% { box-shadow: 0 0 15px rgba(176, 125, 82, 0.25); }
+  50% { box-shadow: 0 0 30px rgba(176, 125, 82, 0.5); }
+}
+.glow-active { animation: pulseGlow 2s infinite ease-in-out; }
+
+/* Custom Scrollbar */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: #fdf8f3; }
+::-webkit-scrollbar-thumb { background: #dec3a4; border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: #b07d52; }
+
+/* HUD Reticle Overlay - Sandal Brown */
+.hud-corner-tl { position: absolute; top: 12px; left: 12px; width: 16px; height: 16px; border-top: 2px solid #b07d52; border-left: 2px solid #b07d52; }
+.hud-corner-tr { position: absolute; top: 12px; right: 12px; width: 16px; height: 16px; border-top: 2px solid #b07d52; border-right: 2px solid #b07d52; }
+.hud-corner-bl { position: absolute; bottom: 12px; left: 12px; width: 16px; height: 16px; border-bottom: 2px solid #b07d52; border-left: 2px solid #b07d52; }
+.hud-corner-br { position: absolute; bottom: 12px; right: 12px; width: 16px; height: 16px; border-bottom: 2px solid #b07d52; border-right: 2px solid #b07d52; }
+
+/* Scanning beam animation - Warm Sandal Gold */
+@keyframes scanline {
+  0% { top: 0%; opacity: 0.8; }
+  50% { opacity: 0.3; }
+  100% { top: 100%; opacity: 0.8; }
+}
+.scan-beam {
+  position: absolute; left: 0; right: 0; height: 3px;
+  background: linear-gradient(90deg, transparent, #b07d52, #c9a07a, transparent);
+  box-shadow: 0 0 12px #b07d52;
+  animation: scanline 3s linear infinite;
+  pointer-events: none;
+}
+
+/* Gauge Ring Offset Transitions */
+.gauge-ring {
+  transition: stroke-dashoffset 0.5s ease-in-out, stroke 0.5s ease;
+}
+
+/* Progress Transitions */
+.progress-bar-fill {
+  transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Smooth theme switching */
+body, .glass-panel, .glass-card, header, [class*="bg-"], [class*="text-"], [class*="border-"] {
+  transition: background-color 0.25s ease, border-color 0.25s ease, color 0.25s ease;
+}
+
+/* ==========================================================================
+   DARK THEME (Sandal Espresso & Amber Sand)
+   ========================================================================== */
+html.dark {
+  --bg-dark: #160f09;
+  --card-dark: rgba(32, 23, 16, 0.95);
+  --border-dark: rgba(85, 62, 44, 0.9);
+  --emerald-glow: rgba(201, 160, 122, 0.35);
+  --brand-primary: #c9a07a;
+  --brand-accent: #e0be9b;
+}
+html.dark body { color: #fdf8f3; }
+
+html.dark .bg-brand-darkBg,
+html.dark .bg-brand-darkBg\/90,
+html.dark .bg-brand-darkBg\/95 { background-color: #160f09 !important; }
+
+html.dark .bg-brand-cardBg,
+html.dark .bg-brand-cardBg\/90 { background-color: #251a12 !important; }
+
+html.dark .border-brand-border { border-color: #4a3525 !important; }
+
+html.dark .glass-panel { background: var(--card-dark); border-color: var(--border-dark); }
+html.dark .glass-card { background: rgba(36, 26, 18, 0.8); border-color: rgba(201, 160, 122, 0.25); }
+
+html.dark .text-slate-800 { color: #fdf8f3 !important; }
+html.dark .text-slate-700 { color: #f3e6d8 !important; }
+html.dark .text-slate-600 { color: #dec4ab !important; }
+html.dark .text-slate-500 { color: #ba9f85 !important; }
+html.dark .text-slate-400 { color: #9a7f66 !important; }
+
+html.dark .bg-white { background-color: #221710 !important; }
+html.dark .bg-slate-100 { background-color: #2c1e15 !important; }
+html.dark .bg-slate-200 { background-color: #38271b !important; }
+html.dark .bg-slate-300 { background-color: #4a3525 !important; }
+html.dark .hover\:bg-slate-300:hover { background-color: #5a412e !important; }
+html.dark .border-slate-300 { border-color: #4a3525 !important; }
+html.dark .border-gray-800 { border-color: #4a3525 !important; }
+
+html.dark ::-webkit-scrollbar-track { background: #19120c; }
+html.dark ::-webkit-scrollbar-thumb { background: #4a3525; }
+
+/* Theme toggle switch */
+.theme-toggle-btn {
+  position: relative;
+  width: 44px;
+  height: 26px;
+  border-radius: 999px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  padding: 3px;
+  border: 1px solid var(--border-dark);
+  background: var(--card-dark);
+  transition: background-color 0.25s ease, border-color 0.25s ease;
+}
+.theme-toggle-knob {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #9e6b41, #c9a07a);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 10px;
+  transition: transform 0.25s ease;
+  transform: translateX(0);
+}
+html.dark .theme-toggle-knob { transform: translateX(18px); }
+
+/* ==========================================================================
+   BIOMETRIC FACE SCANNER HUD (Login & Registration)
+   ========================================================================== */
+.biometric-scanner-frame {
+  position: relative;
+  overflow: hidden;
+  border-radius: 1rem;
+  border: 2px solid rgba(176, 125, 82, 0.5);
+  background: #000;
+  box-shadow: 0 0 25px rgba(176, 125, 82, 0.25);
+}
+
+.biometric-oval-guide {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 180px;
+  height: 230px;
+  border: 2px dashed rgba(176, 125, 82, 0.8);
+  border-radius: 50%;
+  pointer-events: none;
+  animation: ovalPulse 2s infinite ease-in-out;
+}
+
+@keyframes ovalPulse {
+  0%, 100% { border-color: rgba(176, 125, 82, 0.6); box-shadow: 0 0 10px rgba(176, 125, 82, 0.25); }
+  50% { border-color: rgba(201, 160, 122, 0.95); box-shadow: 0 0 20px rgba(201, 160, 122, 0.5); }
+}
+
+.biometric-scan-line {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #9e6b41, #c9a07a, #b07d52, transparent);
+  box-shadow: 0 0 15px #c9a07a;
+  animation: biometricScan 2.2s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes biometricScan {
+  0% { top: 15%; opacity: 0; }
+  15% { opacity: 1; }
+  85% { opacity: 1; }
+  100% { top: 85%; opacity: 0; }
+}
+
+/* ==========================================================================
+   2-MEMBER CHALLENGE DUEL ARENA STYLING
+   ========================================================================== */
+.duel-vs-badge {
+  position: relative;
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #7c502b, #b07d52);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 800;
+  font-size: 1.15rem;
+  color: #fff;
+  box-shadow: 0 0 20px rgba(176, 125, 82, 0.6);
+  animation: vsPulse 2s infinite ease-in-out;
+}
+
+@keyframes vsPulse {
+  0%, 100% { transform: scale(1); box-shadow: 0 0 15px rgba(176, 125, 82, 0.5); }
+  50% { transform: scale(1.08); box-shadow: 0 0 25px rgba(201, 160, 122, 0.8); }
+}
+
+.lead-meter-bar {
+  height: 10px;
+  border-radius: 999px;
+  overflow: hidden;
+  background: #e8d9c8;
+  display: flex;
+}
+html.dark .lead-meter-bar { background: #38271b; }
+
+.lead-segment-p1 {
+  background: linear-gradient(90deg, #7c502b, #9e6b41);
+  transition: width 0.35s ease;
+}
+
+.lead-segment-p2 {
+  background: linear-gradient(90deg, #b07d52, #c9a07a);
+  transition: width 0.35s ease;
+}
+
+.duel-card-active {
+  box-shadow: 0 0 20px rgba(176, 125, 82, 0.35);
+  border-color: #9e6b41 !important;
+}
+
+.stat-chip {
+  background: var(--bg-dark);
+  border: 1px solid var(--border-dark);
+  border-radius: 0.5rem;
+  padding: 0.35rem 0.5rem;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.75rem;
+}

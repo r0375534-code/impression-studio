@@ -1,0 +1,836 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI First Impression Analyzer Pro | Vision & Audio Intelligence Studio</title>
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#eef2ff',
+              100: '#e0e7ff',
+              400: '#818cf8',
+              500: '#6366f1',
+              600: '#4f46e5',
+              900: '#312e81',
+              accent: '#8b5cf6',
+              darkBg: '#ffffff',
+              cardBg: '#f5f6fb',
+              border: '#e2e4f3'
+            }
+          },
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            display: ['Space Grotesk', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace']
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
+  
+  <!-- Face API JS -->
+  <script src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
+
+  <!-- Chart.js for Trend Dashboards & Radar Charts -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- jsPDF & html2canvas for PDF and PNG Social Card Export -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+  <!-- Canvas Confetti (Imported from Project 2 for Executive Celebrations) -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="min-h-screen pb-12">
+
+  <header class="sticky top-0 z-40 border-b border-brand-border bg-brand-darkBg/90 backdrop-blur-md px-4 lg:px-8 py-3.5">
+    <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
+      
+      <!-- Brand Logo -->
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-600 to-brand-accent flex items-center justify-center text-brand-darkBg font-bold text-xl shadow-lg shadow-brand-500/20">
+          <i class="fa-solid fa-brain"></i>
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <span class="font-mono text-[10px] tracking-widest text-brand-400 uppercase font-semibold">Vision Lab 3.0</span>
+            <span class="bg-brand-500/20 text-brand-400 text-[10px] font-mono px-2 py-0.5 rounded-full border border-brand-500/30">PRO AI</span>
+          </div>
+          <h1 class="font-display font-bold text-lg md:text-xl text-slate-800 tracking-tight">
+            First Impression <span class="text-brand-accent">Analyzer</span>
+          </h1>
+        </div>
+      </div>
+
+      <!-- Navigation Tabs -->
+      <nav class="flex items-center gap-1 bg-brand-cardBg/90 p-1 rounded-xl border border-brand-border text-xs font-medium">
+        <button id="navStudio" onclick="switchTab('studio')" class="tab-btn active px-3.5 py-2 rounded-lg text-white bg-brand-600 font-semibold shadow-sm transition-all flex items-center gap-2">
+          <i class="fa-solid fa-camera"></i> Live Studio
+        </button>
+        <button id="navInterview" onclick="switchTab('interview')" class="tab-btn px-3.5 py-2 rounded-lg text-slate-500 hover:text-slate-800 transition-all flex items-center gap-2">
+          <i class="fa-solid fa-user-tie"></i> AI Interview
+        </button>
+        <button id="navPractice" onclick="switchTab('practice')" class="tab-btn px-3.5 py-2 rounded-lg text-slate-500 hover:text-slate-800 transition-all flex items-center gap-2">
+          <i class="fa-solid fa-bullseye"></i> Practice Mode
+        </button>
+        <button id="navAnalytics" onclick="switchTab('analytics')" class="tab-btn px-3.5 py-2 rounded-lg text-slate-500 hover:text-slate-800 transition-all flex items-center gap-2">
+          <i class="fa-solid fa-chart-line"></i> Analytics &amp; History
+        </button>
+        <button id="navBadges" onclick="switchTab('badges')" class="tab-btn px-3.5 py-2 rounded-lg text-slate-500 hover:text-slate-800 transition-all flex items-center gap-2">
+          <i class="fa-solid fa-trophy"></i> Badges &amp; Rank
+        </button>
+      </nav>
+
+      <!-- System Status Pill -->
+      <div class="flex items-center gap-3">
+        <div id="systemStatusPill" class="flex items-center gap-2 bg-brand-cardBg px-3 py-1.5 rounded-full border border-brand-border font-mono text-xs text-slate-600">
+          <span id="statusLed" class="w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse"></span>
+          <span id="statusText">Initializing AI Engine...</span>
+        </div>
+
+        <!-- Dark / Light Mode Toggle -->
+        <button id="themeToggleBtn" onclick="toggleTheme()" class="theme-toggle-btn" title="Switch dark / light mode" aria-label="Toggle dark and light mode">
+          <span id="themeToggleKnob" class="theme-toggle-knob">
+            <i id="themeToggleIcon" class="fa-solid fa-sun"></i>
+          </span>
+        </button>
+      </div>
+
+    </div>
+  </header>
+
+  <main class="max-w-7xl mx-auto px-4 lg:px-8 pt-6">
+
+    <!-- TAB 1: LIVE STUDIO -->
+    <div id="tabStudioView" class="tab-content space-y-6">
+
+      <!-- Top Action Bar -->
+      <div class="flex flex-wrap items-center justify-between gap-4 glass-panel p-4 rounded-2xl">
+        <div class="flex items-center gap-3">
+          <button id="btnStartCam" onclick="triggerCalibrationProcess()" disabled class="px-5 py-2.5 bg-brand-500 hover:bg-brand-400 text-brand-darkBg font-display font-semibold text-sm rounded-xl transition-all flex items-center gap-2 shadow-lg shadow-brand-500/25 disabled:opacity-50 disabled:cursor-not-allowed">
+            <i class="fa-solid fa-play"></i> Start Calibration &amp; Live Studio
+          </button>
+          <button id="btnStopCam" onclick="stopCameraStudio()" disabled class="px-4 py-2.5 bg-slate-200 hover:bg-slate-300 text-slate-600 font-display font-semibold text-sm rounded-xl border border-slate-300 transition-all flex items-center gap-2 disabled:opacity-40">
+            <i class="fa-solid fa-stop"></i> Stop Camera
+          </button>
+          <button id="btnToggleAudio" onclick="toggleAudioEngine()" class="px-4 py-2.5 bg-brand-cardBg hover:bg-brand-border text-brand-400 font-mono text-xs rounded-xl border border-brand-border transition-all flex items-center gap-2">
+            <i class="fa-solid fa-microphone"></i> Audio Analysis: <span id="audioEngineStateText" class="text-amber-400 font-bold">OFF</span>
+          </button>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <button onclick="openExportReportModal()" class="px-3.5 py-2 bg-brand-cardBg hover:bg-brand-border text-brand-300 border border-brand-border rounded-xl text-xs font-mono flex items-center gap-2">
+            <i class="fa-solid fa-file-pdf text-red-400"></i> PDF Report
+          </button>
+          <button onclick="openSocialCardModal()" class="px-3.5 py-2 bg-brand-cardBg hover:bg-brand-border text-brand-300 border border-brand-border rounded-xl text-xs font-mono flex items-center gap-2">
+            <i class="fa-solid fa-share-nodes text-brand-accent"></i> Share Card
+          </button>
+        </div>
+      </div>
+
+      <!-- Studio Grid -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+        <!-- Left Video Feed Section (7 Cols) -->
+        <div class="lg:col-span-7 space-y-4">
+          
+          <div class="glass-panel p-4 rounded-2xl relative overflow-hidden">
+            <div class="flex items-center justify-between mb-3 font-mono text-xs text-slate-500">
+              <span class="flex items-center gap-2">
+                <i class="fa-solid fa-circle-dot text-brand-400 animate-pulse"></i> LIVE CAMERA FEED [640x480]
+              </span>
+              <span id="fpsCounter" class="text-brand-accent font-semibold">0 FPS</span>
+            </div>
+
+            <!-- Video Container -->
+            <div id="camFrame" class="relative rounded-xl overflow-hidden bg-black aspect-4/3 border border-brand-border group">
+              
+              <video id="videoElement" class="w-full h-full object-cover scale-x-[-1]" autoplay muted playsinline></video>
+              <canvas id="overlayCanvas" class="absolute inset-0 w-full h-full scale-x-[-1] pointer-events-none"></canvas>
+              
+              <!-- HUD Target Reticles -->
+              <div class="hud-corner-tl"></div>
+              <div class="hud-corner-tr"></div>
+              <div class="hud-corner-bl"></div>
+              <div class="hud-corner-br"></div>
+
+              <!-- Scanning Beam (Active when running) -->
+              <div id="scanBeam" class="scan-beam hidden"></div>
+
+              <!-- Overlay Calibration Modal Screen -->
+              <div id="calibrationOverlay" class="absolute inset-0 bg-brand-darkBg/95 backdrop-blur-md flex flex-col items-center justify-center p-6 text-center z-30 transition-all">
+                <div class="w-16 h-16 rounded-2xl bg-brand-500/10 border border-brand-500/30 flex items-center justify-center text-brand-400 text-2xl mb-4">
+                  <i class="fa-solid fa-sliders"></i>
+                </div>
+                <h3 class="font-display font-bold text-xl text-slate-800 mb-2">Camera &amp; Environment Calibration</h3>
+                <p class="text-xs text-slate-500 max-w-md mb-6">
+                  We verify facial alignment, lighting lux, and distance for optimal evaluation accuracy.
+                </p>
+
+                <!-- Checkmarks Grid -->
+                <div class="grid grid-cols-2 gap-3 w-full max-w-sm mb-6 text-left font-mono text-xs">
+                  <div id="checkFaceVisible" class="bg-brand-cardBg p-2.5 rounded-lg border border-brand-border flex items-center justify-between text-slate-500">
+                    <span>Face Visibility</span> <i class="fa-solid fa-circle-notch animate-spin text-amber-400"></i>
+                  </div>
+                  <div id="checkLighting" class="bg-brand-cardBg p-2.5 rounded-lg border border-brand-border flex items-center justify-between text-slate-500">
+                    <span>Lighting Level</span> <i class="fa-solid fa-circle-notch animate-spin text-amber-400"></i>
+                  </div>
+                  <div id="checkDistance" class="bg-brand-cardBg p-2.5 rounded-lg border border-brand-border flex items-center justify-between text-slate-500">
+                    <span>Distance Check</span> <i class="fa-solid fa-circle-notch animate-spin text-amber-400"></i>
+                  </div>
+                  <div id="checkAlignment" class="bg-brand-cardBg p-2.5 rounded-lg border border-brand-border flex items-center justify-between text-slate-500">
+                    <span>Centering</span> <i class="fa-solid fa-circle-notch animate-spin text-amber-400"></i>
+                  </div>
+                </div>
+
+                <!-- Countdown Box -->
+                <div id="countdownBox" class="hidden">
+                  <div class="text-4xl font-display font-extrabold text-brand-accent animate-bounce mb-1" id="countdownNum">3</div>
+                  <span class="font-mono text-xs text-slate-500">HOLD POSITION...</span>
+                </div>
+
+                <button id="btnStartCalibAction" onclick="runCalibrationProcess()" class="px-6 py-2.5 bg-brand-500 hover:bg-brand-400 text-brand-darkBg font-display font-bold text-sm rounded-xl transition-all shadow-lg shadow-brand-500/30">
+                  Begin Diagnostic Calibration
+                </button>
+              </div>
+
+              <!-- Live Environmental Diagnostic Badges Overlay -->
+              <div class="absolute top-3 left-3 flex flex-col gap-1.5 z-20 pointer-events-none">
+                <div id="badgeLighting" class="bg-black/75 backdrop-blur px-2.5 py-1 rounded-md border border-gray-700 text-[11px] font-mono text-gray-300 flex items-center gap-1.5">
+                  <i class="fa-solid fa-sun text-amber-400"></i> Lighting: <span class="font-bold text-slate-800">--</span>
+                </div>
+                <div id="badgePosture" class="bg-black/75 backdrop-blur px-2.5 py-1 rounded-md border border-gray-700 text-[11px] font-mono text-gray-300 flex items-center gap-1.5">
+                  <i class="fa-solid fa-user text-brand-400"></i> Posture: <span class="font-bold text-slate-800">--</span>
+                </div>
+              </div>
+
+              <div class="absolute top-3 right-3 flex flex-col gap-1.5 z-20 pointer-events-none text-right">
+                <div id="badgeStability" class="bg-black/75 backdrop-blur px-2.5 py-1 rounded-md border border-gray-700 text-[11px] font-mono text-gray-300 flex items-center gap-1.5 justify-end">
+                  <i class="fa-solid fa-crosshairs text-indigo-500"></i> Stability: <span class="font-bold text-slate-800">100%</span>
+                </div>
+                <div id="badgeEyeTimer" class="bg-black/75 backdrop-blur px-2.5 py-1 rounded-md border border-gray-700 text-[11px] font-mono text-gray-300 flex items-center gap-1.5 justify-end">
+                  <i class="fa-solid fa-eye text-cyan-400"></i> Eye Contact: <span class="font-bold text-slate-800">0%</span>
+                </div>
+              </div>
+
+              <!-- Live Posture Warning Toast -->
+              <div id="postureWarningBanner" class="absolute bottom-3 left-3 right-3 bg-red-900/90 text-red-200 border border-red-500/40 backdrop-blur px-4 py-2 rounded-xl text-xs font-mono flex items-center justify-between opacity-0 transition-all pointer-events-none">
+                <span class="flex items-center gap-2">
+                  <i class="fa-solid fa-triangle-exclamation text-amber-400 text-sm"></i> 
+                  <span id="postureWarningText">Posture Alert: Head Tilted</span>
+                </span>
+                <span class="text-[10px] bg-red-950 px-2 py-0.5 rounded border border-red-700">CORRECT POSITION</span>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- Voice & Realtime Waveform Bar (Enhanced from Project 2) -->
+          <div class="glass-panel p-4 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div class="flex items-center gap-3 w-full sm:w-auto">
+              <div class="w-9 h-9 rounded-lg bg-brand-500/10 border border-brand-500/30 flex items-center justify-center text-brand-400">
+                <i class="fa-solid fa-microphone-lines"></i>
+              </div>
+              <div>
+                <div class="text-xs font-mono text-slate-500">Acoustic Audio Processor</div>
+                <div class="text-sm font-semibold text-slate-800 flex items-center gap-2">
+                  Voice Confidence Score: <span id="valVoiceScore" class="text-brand-accent font-mono font-bold">--</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Integrated Project 2 Audio Analytics -->
+            <div class="flex items-center gap-4 text-xs font-mono w-full sm:w-auto justify-between sm:justify-end border-t sm:border-t-0 border-brand-border pt-3 sm:pt-0">
+              <div class="text-center sm:text-right">
+                <div class="text-slate-500"><i class="fa-solid fa-wave-square text-purple-400 mr-1"></i> Vocal Pitch</div>
+                <div id="valPitchVariation" class="text-slate-800 font-bold">-- Hz</div>
+              </div>
+              <div class="text-center sm:text-right pl-4 border-l border-brand-border">
+                <div class="text-slate-500">Speaking Pace</div>
+                <div id="valSpeechPace" class="text-gray-200 font-bold">-- wpm</div>
+              </div>
+              <div class="text-center sm:text-right pl-4 border-l border-brand-border">
+                <div class="text-slate-500">Fillers Count</div>
+                <div id="valFillerCount" class="text-amber-400 font-bold">0 detect</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- NEW: Micro-Expression Tracker (Imported from Project 2) -->
+          <div class="glass-panel p-4 rounded-2xl">
+             <div class="flex items-center justify-between mb-3 text-xs font-mono text-slate-500">
+                <span><i class="fa-solid fa-masks-theater text-brand-400 mr-1"></i> Secondary Micro-Expression Analytics</span>
+                <span class="text-[10px] bg-brand-darkBg px-2 py-0.5 rounded border border-brand-border text-brand-accent">REALTIME PRO</span>
+             </div>
+             <div class="grid grid-cols-3 gap-3">
+                <div class="bg-brand-darkBg border border-brand-border rounded-xl p-3 flex flex-col items-center text-center">
+                   <div class="text-xs font-mono text-slate-500 mb-1">Focus / Intent</div>
+                   <div class="w-full bg-slate-200 rounded-full h-1.5 mb-1 overflow-hidden">
+                      <div id="barMicroFocus" class="h-full bg-indigo-500 progress-bar-fill" style="width: 0%"></div>
+                   </div>
+                   <div id="valMicroFocus" class="text-sm font-bold text-slate-800">0%</div>
+                </div>
+                <div class="bg-brand-darkBg border border-brand-border rounded-xl p-3 flex flex-col items-center text-center">
+                   <div class="text-xs font-mono text-slate-500 mb-1">Surprise / Energy</div>
+                   <div class="w-full bg-slate-200 rounded-full h-1.5 mb-1 overflow-hidden">
+                      <div id="barMicroSurprise" class="h-full bg-amber-400 progress-bar-fill" style="width: 0%"></div>
+                   </div>
+                   <div id="valMicroSurprise" class="text-sm font-bold text-slate-800">0%</div>
+                </div>
+                <div class="bg-brand-darkBg border border-brand-border rounded-xl p-3 flex flex-col items-center text-center">
+                   <div class="text-xs font-mono text-slate-500 mb-1">Micro-Stress</div>
+                   <div class="w-full bg-slate-200 rounded-full h-1.5 mb-1 overflow-hidden">
+                      <div id="barMicroStress" class="h-full bg-red-400 progress-bar-fill" style="width: 0%"></div>
+                   </div>
+                   <div id="valMicroStress" class="text-sm font-bold text-slate-800">0%</div>
+                </div>
+             </div>
+          </div>
+
+        </div>
+
+        <!-- Right Impression HUD & Realtime Scores (5 Cols) -->
+        <div class="lg:col-span-5 space-y-4">
+          
+          <div class="glass-panel p-5 rounded-2xl relative">
+            <div class="text-xs font-mono tracking-wider text-brand-400 uppercase mb-4 flex items-center justify-between">
+              <span>Impression Synthesis</span>
+              <span class="text-slate-400 text-[10px]">REALTIME ENGINE</span>
+            </div>
+
+            <!-- Main Score Gauge & Verdict Header -->
+            <div class="flex items-center gap-5 mb-6">
+              
+              <!-- Circular Arc Gauge -->
+              <div class="relative w-36 h-36 flex-shrink-0 flex items-center justify-center">
+                <svg class="w-full h-full transform -rotate-90" viewBox="0 0 140 140">
+                  <circle cx="70" cy="70" r="58" class="stroke-gray-800" stroke-width="12" fill="none"/>
+                  <circle id="gaugeFillRing" cx="70" cy="70" r="58" class="gauge-ring stroke-brand-500" stroke-width="12" stroke-linecap="round" fill="none" stroke-dasharray="364.4" stroke-dashoffset="364.4"/>
+                </svg>
+                <div class="absolute flex flex-col items-center justify-center text-center">
+                  <span id="scoreNumMain" class="font-display font-bold text-4xl text-slate-800">--</span>
+                  <span class="font-mono text-[10px] text-slate-500 tracking-wider">/ 100 PTS</span>
+                </div>
+              </div>
+
+              <!-- Verdict Text -->
+              <div class="space-y-1.5">
+                <span id="scoreTagBadge" class="inline-block px-3 py-1 rounded-full text-[10px] font-mono font-bold tracking-wider bg-slate-200 text-slate-500 border border-slate-300 transition-colors">
+                  STANDBY MODE
+                </span>
+                <h2 id="scoreTitleText" class="font-display font-bold text-xl text-slate-800 leading-tight">
+                  Awaiting Facial Scan
+                </h2>
+                <p id="scoreDescText" class="text-xs text-slate-500 leading-relaxed">
+                  Start the camera to activate full 68-point neural face mesh &amp; voice analysis.
+                </p>
+              </div>
+
+            </div>
+
+            <!-- Sub-Metrics Bars Grid -->
+            <div class="grid grid-cols-2 gap-3 mb-4">
+              
+              <div class="glass-card p-3 rounded-xl">
+                <div class="flex items-center justify-between text-xs font-mono mb-1.5">
+                  <span class="text-slate-500"><i class="fa-solid fa-face-smile text-amber-400 mr-1"></i> Smile</span>
+                  <span id="valSmile" class="text-slate-800 font-bold">0%</span>
+                </div>
+                <div class="w-full h-1.5 bg-slate-200 rounded-full overflow-hidden">
+                  <div id="barSmile" class="h-full bg-amber-400 progress-bar-fill" style="width: 0%"></div>
+                </div>
+              </div>
+
+              <div class="glass-card p-3 rounded-xl">
+                <div class="flex items-center justify-between text-xs font-mono mb-1.5">
+                  <span class="text-slate-500"><i class="fa-solid fa-eye text-cyan-400 mr-1"></i> Eye Contact</span>
+                  <span id="valEye" class="text-slate-800 font-bold">0%</span>
+                </div>
+                <div class="w-full h-1.5 bg-slate-200 rounded-full overflow-hidden">
+                  <div id="barEye" class="h-full bg-cyan-400 progress-bar-fill" style="width: 0%"></div>
+                </div>
+              </div>
+
+              <div class="glass-card p-3 rounded-xl">
+                <div class="flex items-center justify-between text-xs font-mono mb-1.5">
+                  <span class="text-slate-500"><i class="fa-solid fa-shield-halved text-brand-400 mr-1"></i> Composure</span>
+                  <span id="valComposure" class="text-slate-800 font-bold">0%</span>
+                </div>
+                <div class="w-full h-1.5 bg-slate-200 rounded-full overflow-hidden">
+                  <div id="barComposure" class="h-full bg-brand-400 progress-bar-fill" style="width: 0%"></div>
+                </div>
+              </div>
+
+              <div class="glass-card p-3 rounded-xl">
+                <div class="flex items-center justify-between text-xs font-mono mb-1.5">
+                  <span class="text-slate-500"><i class="fa-solid fa-anchor text-purple-400 mr-1"></i> Posture</span>
+                  <span id="valPosture" class="text-slate-800 font-bold">0%</span>
+                </div>
+                <div class="w-full h-1.5 bg-slate-200 rounded-full overflow-hidden">
+                  <div id="barPosture" class="h-full bg-purple-400 progress-bar-fill" style="width: 0%"></div>
+                </div>
+              </div>
+
+            </div>
+
+            <!-- Dynamic AI Coaching Live Card -->
+            <div id="aiCoachingCard" class="bg-brand-darkBg/90 border border-brand-border p-4 rounded-xl flex items-start gap-3 transition-colors duration-500">
+              <div class="w-8 h-8 rounded-lg bg-brand-500/20 text-brand-400 flex items-center justify-center flex-shrink-0 mt-0.5">
+                <i class="fa-solid fa-lightbulb"></i>
+              </div>
+              <div class="space-y-1">
+                <span class="text-[10px] font-mono uppercase tracking-widest text-brand-accent font-bold">LIVE AI ADVISOR</span>
+                <p id="coachingTipText" class="text-xs text-gray-200 leading-relaxed">
+                  Position your camera at eye level and ensure warm front-facing illumination for optimal presentation scoring.
+                </p>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Quick Actions & Session Save Button -->
+          <div class="glass-panel p-4 rounded-2xl flex items-center justify-between">
+            <div class="text-xs font-mono text-slate-500">
+              Session Auto-Save Enabled
+            </div>
+            <button onclick="manuallySaveSession()" class="px-4 py-2 bg-brand-600 hover:bg-brand-500 text-white font-display text-xs font-semibold rounded-xl transition-all flex items-center gap-2 relative overflow-hidden group">
+              <i class="fa-solid fa-floppy-disk relative z-10"></i> <span class="relative z-10">Log Current Session</span>
+              <div class="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform"></div>
+            </button>
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- TAB 2: AI INTERVIEW MODE -->
+    <div id="tabInterviewView" class="tab-content hidden space-y-6">
+      
+      <div class="glass-panel p-6 rounded-2xl max-w-4xl mx-auto space-y-6">
+        
+        <div class="flex items-center justify-between border-b border-brand-border pb-4">
+          <div>
+            <h2 class="font-display font-bold text-2xl text-slate-800 flex items-center gap-2">
+              <i class="fa-solid fa-comments text-brand-accent"></i> AI Interview Simulator
+            </h2>
+            <p class="text-xs text-slate-500 mt-1">
+              Answer simulated executive interview questions with real-time audio-visual evaluation.
+            </p>
+          </div>
+          <div class="text-right">
+            <span class="text-xs font-mono text-slate-500">Readiness Score</span>
+            <div id="interviewReadinessScore" class="font-display font-bold text-3xl text-brand-accent">--</div>
+          </div>
+        </div>
+
+        <!-- Question Prompt Box -->
+        <div class="bg-brand-cardBg border border-brand-border p-5 rounded-xl space-y-3 relative overflow-hidden">
+          <div class="flex items-center justify-between text-xs font-mono text-brand-400">
+            <span>QUESTION <span id="currentQIndex">1</span> OF 5</span>
+            <span id="questionCategory" class="bg-brand-500/10 px-2 py-0.5 rounded border border-brand-500/30">BEHAVIORAL</span>
+          </div>
+          <h3 id="currentQuestionText" class="font-display font-semibold text-lg text-slate-800 leading-snug">
+            "Tell me about a challenging situation where you had to lead a project under tight deadlines. How did you maintain composure?"
+          </h3>
+        </div>
+
+        <!-- Timer & Controls -->
+        <div class="flex flex-col sm:flex-row items-center justify-between gap-4 bg-brand-darkBg p-4 rounded-xl border border-brand-border">
+          <div class="flex items-center gap-4">
+            <!-- 30 sec progress circle -->
+            <div class="relative w-14 h-14 flex items-center justify-center font-mono font-bold text-lg text-brand-accent">
+              <svg class="w-full h-full transform -rotate-90" viewBox="0 0 60 60">
+                <circle cx="30" cy="30" r="24" class="stroke-gray-800" stroke-width="5" fill="none"/>
+                <circle id="interviewTimerRing" cx="30" cy="30" r="24" class="stroke-brand-accent transition-all duration-1000 linear" stroke-width="5" stroke-linecap="round" fill="none" stroke-dasharray="150.7" stroke-dashoffset="0"/>
+              </svg>
+              <span id="interviewSecondsText">30</span>
+            </div>
+            <div>
+              <div class="text-sm font-semibold text-slate-800" id="interviewStateLabel">Ready to Answer</div>
+              <div class="text-xs text-slate-500">Maintain eye contact and steady tone</div>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-3">
+            <button id="btnStartInterview" onclick="startInterviewSession()" class="px-5 py-2.5 bg-brand-500 hover:bg-brand-400 text-brand-darkBg font-display font-bold text-sm rounded-xl transition-all shadow-md">
+              <i class="fa-solid fa-microphone mr-1.5"></i> Begin 30s Answer
+            </button>
+            <button onclick="nextInterviewQuestion()" class="px-4 py-2.5 bg-slate-200 hover:bg-slate-300 text-slate-600 font-display font-semibold text-sm rounded-xl border border-slate-300 transition-colors">
+              Next Question <i class="fa-solid fa-arrow-right ml-1"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Interview Session Feedback Summary -->
+        <div id="interviewResultsPanel" class="hidden bg-brand-cardBg border border-brand-border p-5 rounded-xl space-y-4">
+          <h4 class="font-display font-bold text-base text-slate-800 flex items-center gap-2">
+            <i class="fa-solid fa-square-poll-vertical text-brand-accent"></i> Response Assessment Summary
+          </h4>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 font-mono text-xs">
+            <div class="bg-brand-darkBg p-3 rounded-lg border border-brand-border">
+              <span class="text-slate-500">Facial Composure:</span>
+              <div id="intResFacial" class="text-sm font-bold text-slate-800 mt-1">--</div>
+            </div>
+            <div class="bg-brand-darkBg p-3 rounded-lg border border-brand-border">
+              <span class="text-slate-500">Speech Fluency:</span>
+              <div id="intResSpeech" class="text-sm font-bold text-slate-800 mt-1">--</div>
+            </div>
+            <div class="bg-brand-darkBg p-3 rounded-lg border border-brand-border">
+              <span class="text-slate-500">Eye Contact Consistency:</span>
+              <div id="intResEye" class="text-sm font-bold text-slate-800 mt-1">--</div>
+            </div>
+          </div>
+          <p id="intResFeedbackText" class="text-xs text-slate-600 italic leading-relaxed">
+            --
+          </p>
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- TAB 3: PRACTICE MODE -->
+    <div id="tabPracticeView" class="tab-content hidden space-y-6">
+      <div class="glass-panel p-6 rounded-2xl max-w-4xl mx-auto space-y-6">
+        
+        <div class="border-b border-brand-border pb-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div>
+            <h2 class="font-display font-bold text-2xl text-slate-800 flex items-center gap-2">
+              <i class="fa-solid fa-stopwatch text-brand-accent"></i> Timed Practice Session & Auto PDF Generator
+            </h2>
+            <p class="text-xs text-slate-500 mt-1">
+              Set a timer duration, record continuous metrics during your practice speech, and automatically receive a PDF report when time expires.
+            </p>
+          </div>
+          <div id="pracRecordingBadge" class="hidden flex items-center gap-2 bg-red-950/80 border border-red-500/50 px-3.5 py-1.5 rounded-full text-xs font-mono text-red-300 animate-pulse">
+            <span class="w-2.5 h-2.5 rounded-full bg-red-500"></span> REC: Session In Progress
+          </div>
+        </div>
+
+        <!-- Practice Session Configuration Bar -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 bg-brand-cardBg p-4 rounded-xl border border-brand-border font-mono text-xs">
+          <div>
+            <label class="block text-slate-500 mb-1">Candidate Name:</label>
+            <input id="practiceCandidateName" type="text" value="Executive Candidate" class="w-full bg-brand-darkBg border border-brand-border px-3 py-2 rounded-lg text-slate-800 outline-none focus:border-brand-400 transition-colors"/>
+          </div>
+          <div>
+            <label class="block text-slate-500 mb-1">Session Duration:</label>
+            <select id="practiceTimerSelect" class="w-full bg-brand-darkBg border border-brand-border px-3 py-2 rounded-lg text-slate-800 outline-none focus:border-brand-400 transition-colors">
+              <option value="30">30 Seconds (Quick Check)</option>
+              <option value="60" selected>1 Minute (Elevator Pitch)</option>
+              <option value="120">2 Minutes (Presentation)</option>
+              <option value="180">3 Minutes (Executive Speech)</option>
+              <option value="300">5 Minutes (Full Session)</option>
+            </select>
+          </div>
+          <div class="flex items-end">
+            <button id="btnStartPracticeSession" onclick="startTimedPracticeSession()" class="w-full py-2 bg-brand-500 hover:bg-brand-400 text-brand-darkBg font-display font-bold text-sm rounded-lg transition-all shadow-md flex items-center justify-center gap-2">
+              <i class="fa-solid fa-play"></i> Start Timed Session
+            </button>
+            <button id="btnStopPracticeSession" onclick="finishPracticeSession(true)" class="hidden w-full py-2 bg-red-600 hover:bg-red-500 text-white font-display font-bold text-sm rounded-lg transition-all shadow-md flex items-center justify-center gap-2">
+              <i class="fa-solid fa-file-pdf"></i> Stop &amp; Generate PDF Now
+            </button>
+          </div>
+        </div>
+
+        <!-- Auto-PDF & Download Folder Settings -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-brand-cardBg p-4 rounded-xl border border-brand-border font-mono text-xs">
+          <div class="flex items-center justify-between gap-3 bg-brand-darkBg border border-brand-border rounded-lg px-3 py-2.5">
+            <div>
+              <div class="text-slate-800 font-semibold">Auto PDF Generator</div>
+              <div id="autoPdfHelperText" class="text-slate-500 text-[11px] mt-0.5">ON — PDF auto-downloads when timer hits 0</div>
+            </div>
+            <button id="btnToggleAutoPdf" onclick="toggleAutoPdfGenerator()" role="switch" aria-checked="true" class="shrink-0 w-11 h-6 rounded-full bg-brand-500 relative transition-colors">
+              <span id="autoPdfToggleKnob" class="absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform translate-x-5"></span>
+            </button>
+          </div>
+          <div class="flex items-center justify-between gap-3 bg-brand-darkBg border border-brand-border rounded-lg px-3 py-2.5">
+            <div class="min-w-0">
+              <div class="text-slate-800 font-semibold">Download Folder</div>
+              <div id="downloadFolderText" class="text-slate-500 text-[11px] mt-0.5 truncate">Default (browser Downloads)</div>
+            </div>
+            <button onclick="chooseDownloadFolder()" class="shrink-0 px-3 py-1.5 bg-brand-500 hover:bg-brand-400 text-brand-darkBg font-semibold rounded-lg transition-colors flex items-center gap-1.5">
+              <i class="fa-solid fa-folder-open"></i> Choose
+            </button>
+          </div>
+        </div>
+
+        <!-- Timer & Visual Progress Display -->
+        <div class="bg-brand-darkBg border border-brand-border p-6 rounded-xl space-y-4">
+          <div class="flex items-center justify-between">
+            <div class="space-y-1">
+              <span class="text-[10px] font-mono uppercase tracking-widest text-brand-400">PRACTICE COUNTDOWN</span>
+              <div id="practiceCountdownDisplay" class="font-display font-extrabold text-5xl text-slate-800">01:00</div>
+            </div>
+            <div class="text-right font-mono text-xs text-slate-500">
+              <div>Sample Buffer: <span id="sampleCountDisplay" class="text-brand-accent font-bold">0</span> samples</div>
+              <div id="practiceStatusText" class="text-slate-500 mt-1">Ready to start session</div>
+            </div>
+          </div>
+
+          <!-- Progress Bar -->
+          <div class="w-full bg-slate-200 rounded-full h-3 overflow-hidden">
+            <div id="practiceProgressBar" class="bg-gradient-to-r from-brand-500 to-brand-accent h-full w-0 transition-all duration-300"></div>
+          </div>
+        </div>
+
+        <!-- Live Snapshot & Detailed Diagnostic Panel -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
+          
+          <!-- Snapshot Display Frame -->
+          <div class="relative bg-black aspect-4/3 rounded-xl overflow-hidden border border-brand-border flex items-center justify-center">
+            <img id="practiceSnapshotImg" class="w-full h-full object-cover hidden" alt="Freeze Frame"/>
+            <div id="practicePlaceholder" class="text-center p-6 text-slate-400 font-mono text-xs space-y-2">
+              <i class="fa-solid fa-stopwatch text-3xl text-gray-600 mb-2"></i>
+              <div>TIMED PRACTICE IDLE</div>
+              <p class="text-[10px]">Start timer above to begin live recording &amp; auto-exporting PDF</p>
+            </div>
+          </div>
+
+          <!-- Practice Detailed Diagnostic Summary Card -->
+          <div class="space-y-4">
+            <div id="practiceAnalysisCard" class="bg-brand-cardBg border border-brand-border p-4 rounded-xl space-y-3 font-mono text-xs">
+              <div class="flex items-center justify-between border-b border-brand-border pb-2">
+                <span class="text-slate-500">Aggregated Session Score</span>
+                <span id="pracScoreVal" class="font-display font-bold text-lg text-brand-accent">--</span>
+              </div>
+              <div class="space-y-2 text-slate-600">
+                <div class="flex justify-between"><span>Avg Warmth Smile:</span> <span id="pracExpr" class="text-amber-400 font-bold">--</span></div>
+                <div class="flex justify-between"><span>Avg Eye Contact:</span> <span id="pracGaze" class="text-cyan-400 font-bold">--</span></div>
+                <div class="flex justify-between"><span>Avg Composure:</span> <span id="pracComposure" class="text-indigo-500 font-bold">--</span></div>
+                <div class="flex justify-between"><span>Avg Vocal Energy:</span> <span id="pracVoice" class="text-purple-400 font-bold">--</span></div>
+                <div class="flex justify-between border-t border-brand-border/60 pt-1.5"><span>Post-Session Action:</span> <span id="pracAutoPdfStatus" class="text-slate-500">PDF auto-downloads when timer hits 0</span></div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+
+    <!-- TAB 4: ANALYTICS & SCORE TREND DASHBOARD -->
+    <div id="tabAnalyticsView" class="tab-content hidden space-y-6">
+      
+      <!-- Top Row Analytics Cards -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        
+        <!-- Score History Line Chart (7 Cols) -->
+        <div class="lg:col-span-7 glass-panel p-5 rounded-2xl space-y-3">
+          <div class="flex items-center justify-between border-b border-brand-border pb-3">
+            <h3 class="font-display font-bold text-base text-slate-800 flex items-center gap-2">
+              <i class="fa-solid fa-chart-line text-brand-accent"></i> Impression Trends (Last 20 Sessions)
+            </h3>
+            <span class="font-mono text-[10px] text-slate-500">AUTO-UPDATED</span>
+          </div>
+          <div class="h-64 w-full">
+            <canvas id="trendLineChart"></canvas>
+          </div>
+        </div>
+
+        <!-- Confidence Radar Chart (5 Cols) -->
+        <div class="lg:col-span-5 glass-panel p-5 rounded-2xl space-y-3">
+          <div class="flex items-center justify-between border-b border-brand-border pb-3">
+            <h3 class="font-display font-bold text-base text-slate-800 flex items-center gap-2">
+              <i class="fa-solid fa-chart-pie text-cyan-400"></i> Confidence Hex-Radar
+            </h3>
+            <span class="font-mono text-[10px] text-slate-500">TARGET VS CURRENT</span>
+          </div>
+          <div class="h-64 w-full flex items-center justify-center">
+            <canvas id="radarChart"></canvas>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- NEW: Advanced Vocal & Executive Analytics (Imported from Project 2) -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+         <!-- Expression Distribution -->
+         <div class="glass-panel p-5 rounded-2xl space-y-3">
+            <div class="flex items-center justify-between border-b border-brand-border pb-3">
+               <h3 class="font-display font-bold text-base text-slate-800 flex items-center gap-2">
+                  <i class="fa-solid fa-chart-doughnut text-purple-400"></i> Expression Distribution
+               </h3>
+               <span class="font-mono text-[10px] text-slate-500">SESSION OVERVIEW</span>
+            </div>
+            <div class="h-48 w-full flex justify-center">
+               <canvas id="expressionDoughnutChart"></canvas>
+            </div>
+         </div>
+         
+         <!-- Emotion Timeline Graph -->
+         <div class="glass-panel p-5 rounded-2xl space-y-3">
+            <div class="flex items-center justify-between border-b border-brand-border pb-3">
+              <h3 class="font-display font-bold text-base text-slate-800 flex items-center gap-2">
+                <i class="fa-solid fa-timeline text-amber-400"></i> Live Emotion Timeline
+              </h3>
+              <span class="font-mono text-[10px] text-slate-500">DOMINANT EMOTION (SEC-BY-SEC)</span>
+            </div>
+            <div class="h-48 w-full">
+              <canvas id="emotionTimelineChart"></canvas>
+            </div>
+         </div>
+      </div>
+
+      <!-- Session Local Storage Data Table -->
+      <div class="glass-panel p-5 rounded-2xl space-y-4">
+        <div class="flex items-center justify-between border-b border-brand-border pb-3">
+          <h3 class="font-display font-bold text-base text-slate-800 flex items-center gap-2">
+            <i class="fa-solid fa-database text-brand-400"></i> Session History Logs
+          </h3>
+          <button onclick="clearAllHistory()" class="px-3 py-1 bg-red-950/80 hover:bg-red-900 text-red-300 border border-red-700 rounded-lg font-mono text-xs transition-colors">
+            Clear Local Logs
+          </button>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-left font-mono text-xs">
+            <thead>
+              <tr class="border-b border-brand-border text-slate-500 uppercase text-[10px]">
+                <th class="py-2.5 px-3">Date &amp; Time</th>
+                <th class="py-2.5 px-3">Overall Score</th>
+                <th class="py-2.5 px-3">Smile</th>
+                <th class="py-2.5 px-3">Eye Contact</th>
+                <th class="py-2.5 px-3">Composure</th>
+                <th class="py-2.5 px-3">Voice Score</th>
+                <th class="py-2.5 px-3">Verdict</th>
+              </tr>
+            </thead>
+            <tbody id="historyTableBody" class="divide-y divide-brand-border text-gray-200">
+              <!-- Rendered via JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- TAB 5: BADGES & LOCAL LEADERBOARD -->
+    <div id="tabBadgesView" class="tab-content hidden space-y-6">
+      
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        
+        <!-- Badges Grid (7 Cols) -->
+        <div class="lg:col-span-7 glass-panel p-6 rounded-2xl space-y-4">
+          <div class="border-b border-brand-border pb-3 flex justify-between items-end">
+            <div>
+               <h3 class="font-display font-bold text-xl text-slate-800 flex items-center gap-2">
+                 <i class="fa-solid fa-award text-amber-400"></i> Achievement Badges
+               </h3>
+               <p class="text-xs text-slate-500 mt-0.5">Unlock prestige badges as your performance scores cross key benchmarks.</p>
+            </div>
+            <button onclick="testConfetti()" class="text-[10px] font-mono text-brand-500 hover:text-brand-400 opacity-50 hover:opacity-100 transition-opacity">
+               <i class="fa-solid fa-wand-magic-sparkles"></i> Test Celebration
+            </button>
+          </div>
+
+          <div class="grid grid-cols-2 sm:grid-cols-3 gap-4" id="badgesGrid">
+            <!-- Badges dynamically rendered -->
+          </div>
+        </div>
+
+        <!-- Local Leaderboard (5 Cols) -->
+        <div class="lg:col-span-5 glass-panel p-6 rounded-2xl space-y-4">
+          <div class="border-b border-brand-border pb-3 flex items-center justify-between">
+            <div>
+              <h3 class="font-display font-bold text-xl text-slate-800 flex items-center gap-2">
+                <i class="fa-solid fa-ranking-star text-brand-accent"></i> Local Leaderboard
+              </h3>
+              <p class="text-xs text-slate-500 mt-0.5">Top high-score records stored on this browser.</p>
+            </div>
+            <button onclick="promptAddLeaderboardEntry()" class="px-3 py-1.5 bg-brand-600 hover:bg-brand-500 text-white font-mono text-xs rounded-lg transition-colors">
+              + Add Highscore
+            </button>
+          </div>
+
+          <div class="space-y-3 font-mono text-xs" id="leaderboardList">
+            <!-- Rendered dynamically -->
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- MODAL: SHARE SOCIAL CARD -->
+  <div id="modalSocialCard" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 hidden">
+    <div class="bg-brand-darkBg border border-brand-border p-6 rounded-2xl max-w-md w-full space-y-5">
+      <div class="flex items-center justify-between border-b border-brand-border pb-3">
+        <h3 class="font-display font-bold text-lg text-slate-800">Shareable Impression Card</h3>
+        <button onclick="closeModal('modalSocialCard')" class="text-slate-500 hover:text-slate-800 transition-colors"><i class="fa-solid fa-xmark text-lg"></i></button>
+      </div>
+
+      <!-- Card Container for PNG Render -->
+      <div id="cardRenderContainer" class="p-6 rounded-2xl bg-gradient-to-br from-brand-cardBg to-brand-darkBg border border-brand-500/30 text-center space-y-4 shadow-2xl relative overflow-hidden">
+        <div class="absolute -right-8 -bottom-8 w-32 h-32 bg-brand-500/10 rounded-full blur-2xl"></div>
+        <div class="font-mono text-[10px] tracking-widest text-brand-400 uppercase">VISION LAB AI CERTIFIED</div>
+        
+        <div class="w-20 h-20 mx-auto rounded-full bg-brand-500/10 border-2 border-brand-400 flex items-center justify-center">
+          <span id="cardScoreNum" class="font-display font-bold text-3xl text-brand-accent">88</span>
+        </div>
+
+        <div>
+          <h4 id="cardVerdictTitle" class="font-display font-bold text-lg text-slate-800">Executive Ready</h4>
+          <p id="cardDateText" class="font-mono text-[11px] text-slate-500 mt-1">Logged on 2026-08-04</p>
+        </div>
+
+        <div class="grid grid-cols-3 gap-2 font-mono text-[10px] text-slate-600 border-t border-brand-border pt-3">
+          <div>Smile: <span id="cardSmileVal" class="text-slate-800 font-bold">85%</span></div>
+          <div>Eye: <span id="cardEyeVal" class="text-slate-800 font-bold">92%</span></div>
+          <div>Voice: <span id="cardVoiceVal" class="text-slate-800 font-bold">80%</span></div>
+        </div>
+      </div>
+
+      <button onclick="downloadSocialCardPNG()" class="w-full py-3 bg-brand-500 hover:bg-brand-400 text-brand-darkBg font-display font-bold text-sm rounded-xl transition-all shadow-md flex items-center justify-center gap-2">
+        <i class="fa-solid fa-download"></i> Download PNG Scorecard
+      </button>
+    </div>
+  </div>
+
+  <!-- MODAL: PDF REPORT PREVIEW -->
+  <div id="modalPdfReport" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 hidden">
+    <div class="bg-brand-darkBg border border-brand-border p-6 rounded-2xl max-w-lg w-full space-y-5">
+      <div class="flex items-center justify-between border-b border-brand-border pb-3">
+        <h3 class="font-display font-bold text-lg text-slate-800">Generate Executive Assessment PDF</h3>
+        <button onclick="closeModal('modalPdfReport')" class="text-slate-500 hover:text-slate-800 transition-colors"><i class="fa-solid fa-xmark text-lg"></i></button>
+      </div>
+
+      <div class="space-y-3 text-xs text-slate-600 font-mono">
+        <p>This report includes detailed diagnostics, face landmark stability vectors, acoustic voice scores, posture alerts, and personalized AI tips.</p>
+        <div class="bg-brand-cardBg p-3 rounded-lg border border-brand-border">
+          <div class="text-slate-500">Candidate Identifier:</div>
+          <input id="pdfCandidateName" type="text" value="Executive Candidate" class="w-full bg-brand-darkBg border border-brand-border p-2 rounded text-slate-800 mt-1 text-xs outline-none focus:border-brand-400 transition-colors"/>
+        </div>
+      </div>
+
+      <button onclick="generateProfessionalPDF()" class="w-full py-3 bg-red-600 hover:bg-red-500 text-white font-display font-bold text-sm rounded-xl transition-all shadow-md flex items-center justify-center gap-2">
+        <i class="fa-solid fa-file-pdf"></i> Download Official PDF Report
+      </button>
+    </div>
+  </div>
+
+  <script src="js/script.js"></script>
+</body>
+</html>
