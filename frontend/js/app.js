@@ -41,22 +41,39 @@ async function loadNeuralModels() {
   try {
     if (statusText) statusText.textContent = "Loading Face Net Models...";
     
-    // Load TinyFace, 68 Landmarks, Expressions, and Face Recognition (for 128-d biometric descriptors)
-    await faceapi.nets.tinyFaceDetector.loadFromUri(CONFIG.MODEL_URL);
-    await faceapi.nets.faceLandmark68Net.loadFromUri(CONFIG.MODEL_URL);
-    await faceapi.nets.faceExpressionNet.loadFromUri(CONFIG.MODEL_URL);
-    await faceapi.nets.faceRecognitionNet.loadFromUri(CONFIG.MODEL_URL);
+    // Load TinyFace, 68 Landmarks, Expressions, and Face Recognition in parallel for speed
+    await Promise.all([
+      faceapi.nets.tinyFaceDetector.loadFromUri(CONFIG.MODEL_URL),
+      faceapi.nets.faceLandmark68Net.loadFromUri(CONFIG.MODEL_URL),
+      faceapi.nets.faceExpressionNet.loadFromUri(CONFIG.MODEL_URL),
+      faceapi.nets.faceRecognitionNet.loadFromUri(CONFIG.MODEL_URL)
+    ]);
     
     window.isModelsLoaded = true;
     if (statusText) statusText.textContent = "AI Vision & Biometrics Ready";
     if (statusLed) statusLed.className = "w-2.5 h-2.5 rounded-full bg-brand-500 shadow-sm shadow-brand-400";
     if (btnStartCam) btnStartCam.disabled = false;
   } catch (err) {
-    console.warn("Primary CDN model load fallback:", err);
-    window.isModelsLoaded = true;
-    if (statusText) statusText.textContent = "Simulated Engine Ready";
-    if (statusLed) statusLed.className = "w-2.5 h-2.5 rounded-full bg-brand-500";
-    if (btnStartCam) btnStartCam.disabled = false;
+    console.warn("Primary CDN model load fallback, attempting mirror:", err);
+    try {
+      const fallbackUrl = 'https://raw.githubusercontent.com/vladmandic/face-api/master/model';
+      await Promise.all([
+        faceapi.nets.tinyFaceDetector.loadFromUri(fallbackUrl),
+        faceapi.nets.faceLandmark68Net.loadFromUri(fallbackUrl),
+        faceapi.nets.faceExpressionNet.loadFromUri(fallbackUrl),
+        faceapi.nets.faceRecognitionNet.loadFromUri(fallbackUrl)
+      ]);
+      window.isModelsLoaded = true;
+      if (statusText) statusText.textContent = "AI Vision & Biometrics Ready";
+      if (statusLed) statusLed.className = "w-2.5 h-2.5 rounded-full bg-brand-500 shadow-sm shadow-brand-400";
+      if (btnStartCam) btnStartCam.disabled = false;
+    } catch (fallbackErr) {
+      console.warn("Model load fallback simulation:", fallbackErr);
+      window.isModelsLoaded = true;
+      if (statusText) statusText.textContent = "Simulated Engine Ready";
+      if (statusLed) statusLed.className = "w-2.5 h-2.5 rounded-full bg-brand-500";
+      if (btnStartCam) btnStartCam.disabled = false;
+    }
   }
 }
 

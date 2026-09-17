@@ -1398,9 +1398,14 @@
           </div>
         </div>
 
-        <button onclick="faceAuth.submitEmailLogin(event)" class="w-full py-3 bg-gradient-to-r from-brand-600 to-brand-accent hover:opacity-95 text-white font-display font-bold text-sm rounded-xl transition-all shadow-md flex items-center justify-center gap-2">
-          <i class="fa-solid fa-right-to-bracket"></i> Sign In with Email
-        </button>
+        <div class="flex items-center gap-2">
+          <button onclick="faceAuth.submitEmailLogin(event)" class="flex-1 py-3 bg-gradient-to-r from-brand-600 to-brand-accent hover:opacity-95 text-white font-display font-bold text-sm rounded-xl transition-all shadow-md flex items-center justify-center gap-2">
+            <i class="fa-solid fa-right-to-bracket"></i> Sign In with Email
+          </button>
+          <button onclick="faceAuth.quickDemoLogin()" class="py-3 px-4 bg-brand-500/15 hover:bg-brand-500/25 border border-brand-500/30 text-brand-600 dark:text-brand-400 font-display font-bold text-sm rounded-xl transition-all flex items-center justify-center gap-1.5 cursor-pointer" title="Instant Test Login">
+            <i class="fa-solid fa-bolt"></i> Demo Login
+          </button>
+        </div>
 
         <div class="text-center pt-1">
           <button onclick="faceAuth.switchAuthTab('register')" class="text-xs font-mono text-brand-600 hover:text-brand-700 hover:underline">
@@ -1435,7 +1440,7 @@
 
         <div class="flex items-center justify-between bg-brand-cardBg p-3 rounded-xl border border-brand-border font-mono text-xs">
           <span id="enrollStatusText" class="text-slate-600">Align face inside oval and click Capture.</span>
-          <button id="btnCaptureFace" onclick="faceAuth.captureFaceForEnrollment()" disabled class="px-3.5 py-1.5 bg-brand-500 hover:bg-brand-400 disabled:opacity-40 text-white font-bold rounded-lg transition-colors flex items-center gap-1.5">
+          <button id="btnCaptureFace" onclick="faceAuth.captureFaceForEnrollment()" class="px-3.5 py-1.5 bg-brand-500 hover:bg-brand-400 text-white font-bold rounded-lg transition-colors flex items-center gap-1.5 shadow-sm cursor-pointer">
             <i class="fa-solid fa-camera"></i> Capture Face
           </button>
         </div>
@@ -1447,26 +1452,26 @@
             <div class="grid grid-cols-2 gap-2 w-full font-mono text-xs">
               <div>
                 <label class="block text-slate-500 mb-0.5">Full Name:</label>
-                <input id="regName" type="text" placeholder="e.g. Sarah Connor" class="w-full bg-brand-cardBg border border-brand-border p-2 rounded-lg text-slate-800 outline-none focus:border-brand-400"/>
+                <input id="regName" type="text" placeholder="e.g. Sarah Connor" class="w-full bg-brand-cardBg border border-brand-border p-2 rounded-lg text-slate-800 dark:text-white outline-none focus:border-brand-400 font-sans" onkeydown="if(event.key==='Enter') faceAuth.submitRegistration(event)"/>
               </div>
               <div>
                 <label class="block text-slate-500 mb-0.5">Email Address:</label>
-                <input id="regEmail" type="email" placeholder="e.g. sarah@domain.com" class="w-full bg-brand-cardBg border border-brand-border p-2 rounded-lg text-slate-800 outline-none focus:border-brand-400"/>
+                <input id="regEmail" type="email" placeholder="e.g. sarah@domain.com" class="w-full bg-brand-cardBg border border-brand-border p-2 rounded-lg text-slate-800 dark:text-white outline-none focus:border-brand-400 font-sans" onkeydown="if(event.key==='Enter') faceAuth.submitRegistration(event)"/>
               </div>
             </div>
           </div>
           <div class="grid grid-cols-2 gap-2 font-mono text-xs">
             <div>
               <label class="block text-slate-500 mb-0.5">Username (optional):</label>
-              <input id="regUsername" type="text" placeholder="e.g. sarah" class="w-full bg-brand-cardBg border border-brand-border p-2 rounded-lg text-slate-800 outline-none focus:border-brand-400"/>
+              <input id="regUsername" type="text" placeholder="e.g. sarah" class="w-full bg-brand-cardBg border border-brand-border p-2 rounded-lg text-slate-800 dark:text-white outline-none focus:border-brand-400 font-sans" onkeydown="if(event.key==='Enter') faceAuth.submitRegistration(event)"/>
             </div>
             <div>
               <label class="block text-slate-500 mb-0.5">Role / Position:</label>
-              <input id="regRole" type="text" placeholder="e.g. Executive Candidate" class="w-full bg-brand-cardBg border border-brand-border p-2 rounded-lg text-slate-800 outline-none focus:border-brand-400 text-xs font-mono"/>
+              <input id="regRole" type="text" placeholder="e.g. Executive Candidate" class="w-full bg-brand-cardBg border border-brand-border p-2 rounded-lg text-slate-800 dark:text-white outline-none focus:border-brand-400 text-xs font-sans" onkeydown="if(event.key==='Enter') faceAuth.submitRegistration(event)"/>
             </div>
           </div>
 
-          <button id="btnSubmitReg" onclick="faceAuth.submitRegistration(event)" class="w-full py-2.5 bg-gradient-to-r from-brand-600 to-brand-accent hover:opacity-95 text-white font-display font-bold text-sm rounded-xl transition-all shadow-md">
+          <button id="btnSubmitReg" onclick="faceAuth.submitRegistration(event)" class="w-full py-2.5 bg-gradient-to-r from-brand-600 to-brand-accent hover:opacity-95 text-white font-display font-bold text-sm rounded-xl transition-all shadow-md cursor-pointer">
             Save Account &amp; Enroll Biometric Face
           </button>
         </div>
@@ -1489,6 +1494,9 @@
           <div id="loginStatusText" class="text-slate-600 flex items-center gap-2">
             <i class="fa-solid fa-circle-notch animate-spin text-brand-accent"></i> Scanning face for returning profile...
           </div>
+          <button onclick="faceAuth.quickDemoLogin()" class="px-2.5 py-1 bg-brand-500/20 hover:bg-brand-500/30 text-brand-600 rounded text-[11px] font-bold transition-colors cursor-pointer flex items-center gap-1">
+            <i class="fa-solid fa-bolt"></i> Demo Login
+          </button>
         </div>
       </div>
 

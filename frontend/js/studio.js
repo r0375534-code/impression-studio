@@ -20,6 +20,12 @@ class StudioEngine {
     this.totalFramesProcessed = 0;
     this.lightingSampleCanvas = null;
 
+    // Fast observation & throttled biometric verification state
+    this.isAnalyzingFrame = false;
+    this.lastBiometricCheck = 0;
+    this.isVerifyingBiometric = false;
+    this.lastVerifiedOk = true;
+
     // Metrics state
     this.currentMetrics = {
       overall: 0,
@@ -153,12 +159,14 @@ class StudioEngine {
     const video = document.getElementById('videoElement');
     const canvas = document.getElementById('overlayCanvas');
     this.isDetectionActive = true;
+    this.isAnalyzingFrame = false;
 
     let lastTime = performance.now();
     let frameCount = 0;
 
     this.detectionInterval = setInterval(async () => {
       if (!this.isDetectionActive) return;
+      if (this.isAnalyzingFrame) return; // Prevent async queue build-up!
 
       const now = performance.now();
       frameCount++;
@@ -169,22 +177,26 @@ class StudioEngine {
         lastTime = now;
       }
 
+      if (!video || video.readyState < 2 || video.videoWidth === 0) return;
+
+      this.isAnalyzingFrame = true;
+
       let detectionResult = null;
-      let securityViolation = null; // null | 'no_face' | 'unauthorized_face' | 'multiple_faces' | 'not_logged_in'
+      let securityViolation = null; // null | 'no_face' | 'unauthorized_face' | 'multiple_faces'
       let unauthorizedFaces = [];
       let verifiedUserName = "";
+      let isGuest = false;
 
       if (window.isModelsLoaded && typeof faceapi !== 'undefined' && faceapi.nets.tinyFaceDetector.params) {
         try {
           const currentUser = window.faceAuth && window.faceAuth.getUser ? window.faceAuth.getUser() : null;
           const hasEnrolledBiometrics = currentUser && Array.isArray(currentUser.faceDescriptor) && currentUser.faceDescriptor.length === 128;
 
-          // 1. Detect ALL faces in frame (strict check: NO OTHER FACE allowed)
+          // 1. FAST Real-Time Detection: Detect faces with landmarks & expressions (NO heavy descriptors in animation loop!)
           const allDetections = await faceapi
-            .detectAllFaces(video, new faceapi.TinyFaceDetectorOptions({ inputSize: 224, scoreThreshold: 0.4 }))
+            .detectAllFaces(video, new faceapi.TinyFaceDetectorOptions({ inputSize: 224, scoreThreshold: 0.35 }))
             .withFaceLandmarks()
-            .withFaceExpressions()
-            .withFaceDescriptors();
+            .withFaceExpressions();
 
           if (!allDetections || allDetections.length === 0) {
             securityViolation = 'no_face';
@@ -199,25 +211,37 @@ class StudioEngine {
             const detected = allDetections[0];
 
             if (!currentUser) {
-              securityViolation = 'not_logged_in';
-              detectionResult = null;
-              unauthorizedFaces = [detected];
+              // Guest / Practice observation mode: allow fast observation!
+              detectionResult = detected;
+              verifiedUserName = "Guest (Practice Mode)";
+              isGuest = true;
+              securityViolation = null;
             } else if (!hasEnrolledBiometrics) {
-              securityViolation = 'not_logged_in';
-              detectionResult = null;
-              unauthorizedFaces = [detected];
+              // Logged in without face biometric lock
+              detectionResult = detected;
+              verifiedUserName = currentUser.name || "Candidate";
+              securityViolation = null;
             } else {
-              // Match face against the logged-in candidate
-              const liveDescriptor = Array.from(detected.descriptor || []);
-              const dist = window.faceAuth.euclideanDistance(liveDescriptor, currentUser.faceDescriptor);
+              // User has enrolled biometric lock: Throttled background verification (every 3 seconds)
+              if (!this.isVerifyingBiometric && (now - this.lastBiometricCheck > 3000 || typeof this.lastVerifiedOk !== 'boolean')) {
+                this.isVerifyingBiometric = true;
+                faceapi.computeFaceDescriptor(video, detected).then(descriptor => {
+                  this.lastBiometricCheck = performance.now();
+                  this.isVerifyingBiometric = false;
+                  if (descriptor) {
+                    const dist = window.faceAuth.euclideanDistance(Array.from(descriptor), currentUser.faceDescriptor);
+                    this.lastVerifiedOk = dist <= 0.58;
+                  }
+                }).catch(() => {
+                  this.isVerifyingBiometric = false;
+                });
+              }
 
-              if (dist <= 0.50) {
-                // VERIFIED: Registered owner confirmed
+              if (this.lastVerifiedOk !== false) {
                 detectionResult = detected;
                 securityViolation = null;
                 verifiedUserName = currentUser.name || "Verified Owner";
               } else {
-                // UNAUTHORIZED: A different face detected in portal!
                 securityViolation = 'unauthorized_face';
                 detectionResult = null;
                 unauthorizedFaces = [detected];
@@ -237,20 +261,33 @@ class StudioEngine {
       const dims = { width: canvas.width, height: canvas.height };
 
       if (detectionResult && !securityViolation) {
-        // Draw Verified Emerald Green Box & Tag
         const dimsMatch = faceapi.matchDimensions(canvas, dims);
         const resized = faceapi.resizeResults(detectionResult, dimsMatch);
         const box = resized.detection.box;
 
-        ctx.strokeStyle = '#10b981';
-        ctx.lineWidth = 3;
-        ctx.strokeRect(box.x, box.y, box.width, box.height);
+        if (isGuest) {
+          // Warm bronze box for guest observation
+          ctx.strokeStyle = '#9e6b41';
+          ctx.lineWidth = 2.5;
+          ctx.strokeRect(box.x, box.y, box.width, box.height);
 
-        ctx.fillStyle = 'rgba(16, 185, 129, 0.9)';
-        ctx.fillRect(box.x, Math.max(0, box.y - 28), Math.max(160, box.width), 26);
-        ctx.fillStyle = '#ffffff';
-        ctx.font = 'bold 12px "JetBrains Mono", monospace';
-        ctx.fillText(`✓ VERIFIED: ${verifiedUserName}`, box.x + 8, Math.max(16, box.y - 10));
+          ctx.fillStyle = 'rgba(158, 107, 65, 0.9)';
+          ctx.fillRect(box.x, Math.max(0, box.y - 28), Math.max(160, box.width), 26);
+          ctx.fillStyle = '#ffffff';
+          ctx.font = 'bold 11px "JetBrains Mono", monospace';
+          ctx.fillText(`● GUEST OBSERVATION`, box.x + 8, Math.max(16, box.y - 10));
+        } else {
+          // Emerald Green Box for verified owner
+          ctx.strokeStyle = '#10b981';
+          ctx.lineWidth = 3;
+          ctx.strokeRect(box.x, box.y, box.width, box.height);
+
+          ctx.fillStyle = 'rgba(16, 185, 129, 0.9)';
+          ctx.fillRect(box.x, Math.max(0, box.y - 28), Math.max(160, box.width), 26);
+          ctx.fillStyle = '#ffffff';
+          ctx.font = 'bold 12px "JetBrains Mono", monospace';
+          ctx.fillText(`✓ VERIFIED: ${verifiedUserName}`, box.x + 8, Math.max(16, box.y - 10));
+        }
 
         this.processFaceMetrics(detectionResult, canvas.width, canvas.height);
       } else {
@@ -271,7 +308,7 @@ class StudioEngine {
             ctx.font = 'bold 11px "JetBrains Mono", monospace';
             const badgeLabel = securityViolation === 'multiple_faces'
               ? `⚠ MULTIPLE FACES (#${idx + 1})`
-              : (securityViolation === 'not_logged_in' ? '🔒 PLEASE LOG IN' : '⛔ UNAUTHORIZED FACE');
+              : '⛔ UNAUTHORIZED FACE';
             ctx.fillText(badgeLabel, b.x + 6, Math.max(16, b.y - 10));
           });
 
@@ -283,7 +320,7 @@ class StudioEngine {
           ctx.textAlign = 'center';
           const topMsg = securityViolation === 'multiple_faces'
             ? 'SECURITY ALERT: MULTIPLE PERSONS DETECTED — ONLY 1 ALLOWED'
-            : (securityViolation === 'not_logged_in' ? 'PORTAL LOCKED — PLEASE LOG IN WITH YOUR FACE ID' : 'SECURITY LOCK: UNAUTHORIZED FACE DETECTED — ANALYSIS PAUSED');
+            : 'SECURITY LOCK: UNAUTHORIZED FACE DETECTED — ANALYSIS PAUSED';
           ctx.fillText(topMsg, canvas.width / 2, 32);
           ctx.textAlign = 'left';
         }
@@ -293,7 +330,8 @@ class StudioEngine {
       }
 
       this.analyzeLightingQuality(video);
-    }, 280);
+      this.isAnalyzingFrame = false;
+    }, 100);
   }
 
   processFaceMetrics(result, frameW, frameH) {
@@ -394,8 +432,6 @@ class StudioEngine {
       warningMsg = "Security Alert: Multiple Faces Detected";
     } else if (securityViolation === 'unauthorized_face') {
       warningMsg = `Security Lock: Unauthorized Face Detected (${ownerName ? 'Locked to ' + ownerName : 'Different Person'})`;
-    } else if (securityViolation === 'not_logged_in') {
-      warningMsg = "Portal Locked: Please Log In with Face ID";
     }
 
     this.currentMetrics = {

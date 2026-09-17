@@ -84,6 +84,7 @@ app.get('/api/users', (req, res) => {
     role: u.role,
     avatar: u.avatar,
     hasFaceRegistered: Array.isArray(u.faceDescriptor) && u.faceDescriptor.length === 128,
+    faceDescriptor: u.faceDescriptor,
     stats: u.stats || {},
     badges: u.badges || []
   }));
@@ -293,7 +294,7 @@ app.post('/api/auth/face-login', (req, res) => {
 
 // 6. Direct Email / Username Fallback Login
 app.post('/api/auth/login', (req, res) => {
-  const { email, username } = req.body;
+  const { email, username, faceDescriptor } = req.body;
   const identifier = (email || username || '').trim().toLowerCase();
 
   if (!identifier) {
@@ -304,9 +305,9 @@ app.post('/api/auth/login', (req, res) => {
   const user = users.find(u => (u.email && u.email.toLowerCase() === identifier) || (u.username && u.username.toLowerCase() === identifier));
 
   if (user) {
-    if (Array.isArray(user.faceDescriptor) && user.faceDescriptor.length === 128) {
-      const { faceDescriptor } = req.body;
-      if (Array.isArray(faceDescriptor) && faceDescriptor.length === 128) {
+    // If faceDescriptor is provided, verify it strictly
+    if (Array.isArray(faceDescriptor) && faceDescriptor.length === 128) {
+      if (Array.isArray(user.faceDescriptor) && user.faceDescriptor.length === 128) {
         const dist = calculateEuclideanDistance(faceDescriptor, user.faceDescriptor);
         if (dist > MATCH_THRESHOLD) {
           return res.status(401).json({
@@ -314,12 +315,6 @@ app.post('/api/auth/login', (req, res) => {
             message: `Authentication Denied: Scanned face does NOT match the registered biometric owner of ${identifier}.`
           });
         }
-      } else {
-        return res.status(403).json({
-          success: false,
-          requireFaceScan: true,
-          message: `Biometric Lock Active: Face scan verification is mandatory for ${user.name}.`
-        });
       }
     }
 

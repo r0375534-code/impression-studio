@@ -17,8 +17,12 @@ const CONFIG = {
       if (window.location.port === '3000') {
         return window.location.origin;
       }
-      // If served by Live Server (e.g. 5500), connect to backend on 3000
-      return `${window.location.protocol}//${window.location.hostname}:3000`;
+      // If running locally via Live Server or custom dev port
+      if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+        return `${window.location.protocol}//${window.location.hostname}:3000`;
+      }
+      // Production cloud deployments (Vercel, Netlify, Render)
+      return window.location.origin;
     }
     // File protocol fallback to local backend port
     return 'http://localhost:3000';
