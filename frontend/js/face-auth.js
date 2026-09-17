@@ -763,6 +763,127 @@ class FaceAuthEngine {
     }
   }
 
+  /* --------------------------------------------------------------------------
+     FEATURE 4: SYNC / RE-ENROLL LIVE WEBCAM FACE FOR ACTIVE USER
+     -------------------------------------------------------------------------- */
+  async updateActiveUserFace() {
+    if (!this.currentUser) {
+      alert("Please log in first before enrolling or updating your Face ID.");
+      this.openAuthModal('email');
+      return;
+    }
+
+    const video = (window.studio && window.studio.stream && document.getElementById('videoElement'))
+      || document.getElementById('enrollVideo')
+      || document.getElementById('loginVideo');
+
+    if (!video || video.readyState < 2 || video.videoWidth === 0) {
+      alert("Please start the webcam camera in the Live Studio first, then click Update Face ID.");
+      if (typeof switchTab === 'function') switchTab('studio');
+      if (window.studio) window.studio.startCameraStream();
+      return;
+    }
+
+    if (!window.isModelsLoaded || typeof faceapi === 'undefined' || !faceapi.nets.faceRecognitionNet.params) {
+      alert("AI face recognition models are still loading. Please wait 2 seconds and retry.");
+      return;
+    }
+
+    // Collect up to 3 rapid clean biometric samples
+    const samples = [];
+    for (let attempt = 0; attempt < 6; attempt++) {
+      try {
+        const detection = await faceapi.detectSingleFace(video, new faceapi.TinyFaceDetectorOptions({ inputSize: 224, scoreThreshold: 0.32 }))
+          .withFaceLandmarks()
+          .withFaceDescriptor();
+
+        if (detection && detection.descriptor) {
+          samples.push(Array.from(detection.descriptor));
+          if (samples.length >= 3) break;
+        }
+      } catch (e) {}
+      await new Promise(r => setTimeout(r, 120));
+    }
+
+    if (samples.length === 0) {
+      alert("No face detected in camera viewport. Please center your face directly in front of the lens with good lighting and retry.");
+      return;
+    }
+
+    // Compute average normalized 128-D descriptor
+    const avgDescriptor = new Float32Array(128);
+    for (let i = 0; i < 128; i++) {
+      let sum = 0;
+      for (let s = 0; s < samples.length; s++) sum += samples[s][i];
+      avgDescriptor[i] = sum / samples.length;
+    }
+    let norm = 0;
+    for (let i = 0; i < 128; i++) norm += avgDescriptor[i] * avgDescriptor[i];
+    norm = Math.sqrt(norm);
+    const descriptorArray = Array.from(avgDescriptor).map(v => v / (norm || 1));
+
+    // Capture preview thumbnail
+    let thumbnailData = '';
+    try {
+      const canvas = document.createElement('canvas');
+      canvas.width = 160;
+      canvas.height = 160;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(video, 0, 0, 160, 160);
+      thumbnailData = canvas.toDataURL('image/jpeg', 0.85);
+    } catch (e) {}
+
+    // Update active user profile
+    this.currentUser.faceDescriptor = descriptorArray;
+    this.currentUser.hasFaceRegistered = true;
+    if (thumbnailData) this.currentUser.avatar = thumbnailData;
+
+    // Save to localStorage
+    localStorage.setItem(CONFIG.STORAGE_KEYS.USER, JSON.stringify(this.currentUser));
+    const localUsers = JSON.parse(localStorage.getItem(CONFIG.STORAGE_KEYS.LOCAL_USERS) || '[]');
+    const idx = localUsers.findIndex(u => (u.id && u.id === this.currentUser.id) || (u.email && u.email.toLowerCase() === this.currentUser.email?.toLowerCase()));
+    if (idx >= 0) {
+      localUsers[idx] = { ...localUsers[idx], ...this.currentUser };
+    } else {
+      localUsers.push(this.currentUser);
+    }
+    localStorage.setItem(CONFIG.STORAGE_KEYS.LOCAL_USERS, JSON.stringify(localUsers));
+
+    // Sync to backend asynchronously
+    try {
+      fetch(`${CONFIG.API_BASE}/api/auth/update-face`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id: this.currentUser.id,
+          email: this.currentUser.email,
+          faceDescriptor: descriptorArray,
+          avatar: thumbnailData
+        })
+      }).catch(() => {});
+    } catch (e) {}
+
+    // Reset studio verification flags immediately
+    if (window.studio) {
+      window.studio.lastVerifiedOk = true;
+      window.studio.isVerifyingBiometric = false;
+      window.studio.consecutiveMismatches = 0;
+      window.studio.lastBiometricCheck = performance.now();
+    }
+
+    this.updateUserUI();
+
+    if (typeof fireExecutiveCelebration === 'function') {
+      try { fireExecutiveCelebration(); } catch (e) {}
+    }
+
+    if (window.gamification) {
+      window.gamification.showToast(`Biometric Face ID Enrolled for ${this.currentUser.name}!`);
+    } else {
+      alert(`Success! Biometric Face ID is now enrolled to your profile (${this.currentUser.name}). Live matching is active.`);
+    }
+  }
+
   logout() {
     this.currentUser = null;
     localStorage.removeItem(CONFIG.STORAGE_KEYS.USER);

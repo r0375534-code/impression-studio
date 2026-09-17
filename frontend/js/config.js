@@ -28,6 +28,10 @@ const CONFIG = {
     return 'http://localhost:3000';
   },
 
+  get API_URL() {
+    return this.API_BASE;
+  },
+
   get WS_BASE() {
     const host = window.location.hostname || 'localhost';
     const port = '3000';

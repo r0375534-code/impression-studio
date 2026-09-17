@@ -448,9 +448,14 @@ class FriendsHub {
 
   startDuelWith(opponentName) {
     if (typeof switchTab === 'function') switchTab('challenge');
-    const input = document.getElementById('opponentName');
+    const input = document.getElementById('localP2NameInput') || document.getElementById('opponentName');
     if (input) input.value = opponentName;
-    if (window.gamification) window.gamification.showToast(`Ready to challenge ${opponentName}!`);
+    if (window.challengeArena) {
+      window.challengeArena.setPlayer2Name(opponentName);
+    }
+    if (window.gamification) {
+      window.gamification.showToast(`Ready to challenge ${opponentName}!`);
+    }
   }
 
   sendBattleChallenge() {

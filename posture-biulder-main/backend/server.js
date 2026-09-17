@@ -62,7 +62,7 @@ function calculateEuclideanDistance(desc1, desc2) {
   return Math.sqrt(sum);
 }
 
-const MATCH_THRESHOLD = 0.55; // Standard Face-API distance threshold
+const MATCH_THRESHOLD = 0.58; // Calibrated Face-API distance threshold (balances security with real-world webcam tolerances)
 
 /* ==========================================================================
    REST API ENDPOINTS
@@ -320,6 +320,44 @@ app.post('/api/auth/login', (req, res) => {
     success: true,
     message: `Account created for ${guestUser.name}`,
     user: guestUser
+  });
+});
+
+// 6b. Update / Re-enroll Biometric Face for Logged-In User
+app.post('/api/auth/update-face', (req, res) => {
+  const { id, email, faceDescriptor, avatar } = req.body;
+  if (!Array.isArray(faceDescriptor) || faceDescriptor.length !== 128) {
+    return res.status(400).json({ success: false, message: 'Valid 128-d biometric face descriptor is required.' });
+  }
+
+  const users = readJson(USERS_FILE);
+  const user = users.find(u => (id && u.id === id) || (email && u.email && u.email.toLowerCase() === email.toLowerCase()));
+
+  if (!user) {
+    return res.status(404).json({ success: false, message: 'User not found to update face biometrics.' });
+  }
+
+  user.faceDescriptor = faceDescriptor;
+  user.hasFaceRegistered = true;
+  if (avatar) user.avatar = avatar;
+
+  writeJson(USERS_FILE, users);
+
+  res.json({
+    success: true,
+    message: 'Biometric Face ID updated successfully!',
+    user: {
+      id: user.id,
+      email: user.email,
+      username: user.username,
+      name: user.name,
+      role: user.role,
+      avatar: user.avatar,
+      hasFaceRegistered: true,
+      faceDescriptor: user.faceDescriptor,
+      stats: user.stats,
+      badges: user.badges
+    }
   });
 });
 

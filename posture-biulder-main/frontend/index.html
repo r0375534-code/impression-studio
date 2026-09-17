@@ -142,6 +142,9 @@
               </div>
               <span id="headerUserRole" class="text-[10px] font-mono text-slate-500">Executive</span>
             </div>
+            <button onclick="faceAuth.updateActiveUserFace()" class="px-2 py-1 bg-brand-500/10 hover:bg-brand-500/20 text-brand-600 rounded-lg text-[10px] font-mono flex items-center gap-1 border border-brand-500/20 ml-1" title="Sync / Update Face ID to your current face">
+              <i class="fa-solid fa-camera text-[9px]"></i> Sync Face
+            </button>
             <button onclick="faceAuth.logout()" class="text-slate-400 hover:text-red-400 text-xs ml-1 transition-colors" title="Logout">
               <i class="fa-solid fa-right-from-bracket"></i>
             </button>
@@ -180,6 +183,9 @@
           </button>
           <button id="btnToggleAudio" onclick="toggleAudioEngine()" class="px-4 py-2.5 bg-brand-cardBg hover:bg-brand-border text-brand-400 font-mono text-xs rounded-xl border border-brand-border transition-all flex items-center gap-2">
             <i class="fa-solid fa-microphone"></i> Audio Analysis: <span id="audioEngineStateText" class="text-amber-400 font-bold">OFF</span>
+          </button>
+          <button id="btnSyncFaceStudio" onclick="faceAuth.updateActiveUserFace()" class="px-3.5 py-2.5 bg-brand-cardBg hover:bg-brand-border text-brand-600 font-mono text-xs rounded-xl border border-brand-border transition-all flex items-center gap-1.5" title="Enroll or update your Face ID from the current live camera feed">
+            <i class="fa-solid fa-id-card"></i> Update Face ID
           </button>
         </div>
 
@@ -736,6 +742,18 @@
           <div class="flex items-center gap-2">
             <span class="text-slate-500">TIME REMAINING:</span>
             <span id="duelTimerNum" class="font-display font-extrabold text-lg text-brand-accent">00:30</span>
+          </div>
+        </div>
+
+        <!-- Live Duel Camera Feed Preview -->
+        <div id="duelCameraContainer" class="relative max-w-sm mx-auto w-full rounded-2xl overflow-hidden border-2 border-brand-500/30 bg-black aspect-video shadow-md">
+          <video id="duelVideoElement" class="w-full h-full object-cover scale-x-[-1]" autoplay muted playsinline></video>
+          <div class="absolute top-2 left-2 px-2 py-0.5 rounded-full bg-black/60 text-white font-mono text-[9px] flex items-center gap-1.5 backdrop-blur-sm">
+            <span class="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse"></span>
+            <span>LIVE DUEL SENSOR</span>
+          </div>
+          <div id="duelCameraOverlayText" class="absolute bottom-1.5 inset-x-2 text-center py-0.5 rounded-lg bg-black/60 text-brand-300 font-mono text-[10px] backdrop-blur-sm">
+            Maintain executive eye contact & composure!
           </div>
         </div>
 

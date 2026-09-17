@@ -113,11 +113,26 @@ class ChallengeArenaEngine {
   /* --------------------------------------------------------------------------
      LOCAL 2-PLAYER DUEL
      -------------------------------------------------------------------------- */
-  startLocalDuel() {
+  async startLocalDuel() {
     if (!window.studio || !window.studio.isCamActive()) {
-      alert("Please start the camera in the Live Studio first so AI can measure duel performance!");
-      if (typeof switchTab === 'function') switchTab('studio');
-      return;
+      if (window.studio) {
+        try {
+          await window.studio.startCameraStream();
+          window.studio.startDetectionLoop();
+        } catch (e) {
+          alert("Please enable camera access so the AI Duel Arena can measure performance!");
+          return;
+        }
+      }
+    }
+
+    // Connect camera stream to duel video preview
+    const duelVideo = document.getElementById('duelVideoElement');
+    if (duelVideo && window.studio && window.studio.stream) {
+      duelVideo.srcObject = window.studio.stream;
+      duelVideo.muted = true;
+      duelVideo.playsInline = true;
+      duelVideo.play().catch(() => {});
     }
 
     const durationSelect = document.getElementById('localDuelDurationSelect');
@@ -144,8 +159,40 @@ class ChallengeArenaEngine {
     document.getElementById('btnStartLocalDuel').classList.add('hidden');
     document.getElementById('btnStopLocalDuel').classList.remove('hidden');
 
-    this.updateTurnIndicator('Player 1 Pitch: ' + this.player1.name);
+    this.updateTurnIndicator('Round 1: ' + this.player1.name);
     this.runDuelTimer();
+  }
+
+  showRoundTransition(heading, nextPlayerName, onProceed) {
+    let modal = document.getElementById('modalRoundTransition');
+    if (!modal) {
+      modal = document.createElement('div');
+      modal.id = 'modalRoundTransition';
+      modal.className = 'fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-sm p-4';
+      document.body.appendChild(modal);
+    }
+    modal.innerHTML = `
+      <div class="glass-panel max-w-sm w-full p-6 rounded-2xl text-center space-y-4 border-2 border-brand-500 shadow-2xl bg-white">
+        <div class="w-14 h-14 mx-auto rounded-full bg-amber-400/20 text-amber-500 flex items-center justify-center text-2xl animate-bounce">
+          <i class="fa-solid fa-arrows-rotate"></i>
+        </div>
+        <h3 class="font-display font-extrabold text-xl text-slate-800">${heading}</h3>
+        <p class="text-xs font-mono text-slate-500">
+          Now <strong class="text-brand-600">${nextPlayerName}</strong>, take position in front of the camera and show your executive presence!
+        </p>
+        <button id="btnStartRound2Action" class="w-full py-2.5 bg-gradient-to-r from-brand-600 to-brand-accent hover:opacity-95 text-white font-display font-bold text-sm rounded-xl shadow-md transition-all">
+          Begin Round 2 &rarr;
+        </button>
+      </div>
+    `;
+    modal.classList.remove('hidden');
+    const btn = document.getElementById('btnStartRound2Action');
+    if (btn) {
+      btn.onclick = () => {
+        modal.classList.add('hidden');
+        if (typeof onProceed === 'function') onProceed();
+      };
+    }
   }
 
   runDuelTimer() {
@@ -189,11 +236,14 @@ class ChallengeArenaEngine {
 
       if (this.timeRemaining <= 0) {
         if (this.duelMode === 'local' && this.activeTurn === 'player1') {
-          // Player 1 finished! Switch to Player 2
+          // Pause timer during transition
+          clearInterval(this.timerInterval);
           this.activeTurn = 'player2';
           this.timeRemaining = this.duelDuration;
-          this.updateTurnIndicator('Switched! Challenger Pitch: ' + this.player2.name);
-          alert(`Round 1 finished for ${this.player1.name}! Now ${this.player2.name} take your position in front of the camera and click OK to begin Round 2!`);
+          this.updateTurnIndicator('Round 2: ' + this.player2.name);
+          this.showRoundTransition(`Round 1 Complete!`, this.player2.name, () => {
+            this.runDuelTimer();
+          });
         } else {
           // Duel finished!
           this.finishDuel();

@@ -222,19 +222,35 @@ class StudioEngine {
               verifiedUserName = currentUser.name || "Candidate";
               securityViolation = null;
             } else {
-              // User has enrolled biometric lock: Throttled background verification (every 3 seconds)
-              if (!this.isVerifyingBiometric && (now - this.lastBiometricCheck > 3000 || typeof this.lastVerifiedOk !== 'boolean')) {
+              // User has enrolled biometric lock: Throttled background verification (every 3.5 seconds)
+              if (!this.isVerifyingBiometric && (now - this.lastBiometricCheck > 3500 || typeof this.lastVerifiedOk !== 'boolean')) {
                 this.isVerifyingBiometric = true;
-                faceapi.computeFaceDescriptor(video, detected).then(descriptor => {
-                  this.lastBiometricCheck = performance.now();
-                  this.isVerifyingBiometric = false;
-                  if (descriptor) {
-                    const dist = window.faceAuth.euclideanDistance(Array.from(descriptor), currentUser.faceDescriptor);
-                    this.lastVerifiedOk = dist <= 0.58;
-                  }
-                }).catch(() => {
-                  this.isVerifyingBiometric = false;
-                });
+                // High-precision landmark-aligned face descriptor computation
+                faceapi.detectSingleFace(video, new faceapi.TinyFaceDetectorOptions({ inputSize: 224, scoreThreshold: 0.32 }))
+                  .withFaceLandmarks()
+                  .withFaceDescriptor()
+                  .then(detectionWithDesc => {
+                    this.lastBiometricCheck = performance.now();
+                    this.isVerifyingBiometric = false;
+                    if (detectionWithDesc && detectionWithDesc.descriptor) {
+                      const liveDesc = Array.from(detectionWithDesc.descriptor);
+                      const dist = window.faceAuth.euclideanDistance(liveDesc, currentUser.faceDescriptor);
+                      // Calibrated matching tolerance: 0.60
+                      if (dist <= 0.60) {
+                        this.consecutiveMismatches = 0;
+                        this.lastVerifiedOk = true;
+                      } else {
+                        this.consecutiveMismatches = (this.consecutiveMismatches || 0) + 1;
+                        // Require 2 consecutive failed scans to prevent transient lockouts from head movement / lighting
+                        if (this.consecutiveMismatches >= 2) {
+                          this.lastVerifiedOk = false;
+                        }
+                      }
+                    }
+                  })
+                  .catch(() => {
+                    this.isVerifyingBiometric = false;
+                  });
               }
 
               if (this.lastVerifiedOk !== false) {
@@ -638,7 +654,7 @@ class StudioEngine {
         tagBadge.className = "inline-block px-3 py-1 rounded-full text-[10px] font-mono font-bold tracking-wider bg-red-500/20 text-red-500 border border-red-500/40 animate-pulse";
         titleText.textContent = `Security Lock: Not Registered Owner (${ownerName})`;
         descText.textContent = "Detected face does not match the 128-D biometric identity of the logged-in candidate.";
-        tipText.textContent = "Only the authenticated account owner may use this portal. All metrics paused.";
+        tipText.innerHTML = `<span>Is this you?</span> <button onclick="window.faceAuth.updateActiveUserFace()" class="underline font-bold text-brand-600 hover:text-brand-500 ml-1.5"><i class="fa-solid fa-camera mr-1"></i>Sync Face ID to Current Face</button>`;
         coachingCard.className = "bg-red-900/30 border border-red-500/50 p-4 rounded-xl flex items-start gap-3 transition-colors duration-500";
       } else if (securityViolation === 'not_logged_in') {
         tagBadge.textContent = "PORTAL LOCKED";
